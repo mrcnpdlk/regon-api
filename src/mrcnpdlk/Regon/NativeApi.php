@@ -37,17 +37,25 @@ class NativeApi
     /**
      * @param string $response xml string
      *
-     * @return \SimpleXMLElement
+     * @return \SimpleXMLElement[]
      * @throws Exception\InvalidResponse
+     * @todo Sparwdzic czy 'dane' istnieja
      */
     private function decodeResponse(string $response)
     {
-        $code = intval($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE_CODE));
+        $answer = [];
+        $code   = intval($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE_CODE));
         if ($code) {
             throw new Exception\InvalidResponse($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE), $code);
         }
 
-        return new \SimpleXMLElement($response);
+        $res = new \SimpleXMLElement($response);
+
+        foreach ($res->children() as $child) {
+            $answer[] = $child;
+        }
+
+        return $answer;
     }
 
     /**
@@ -68,24 +76,33 @@ class NativeApi
     }
 
     /**
-     * @param array $tRegon
-     * @param array $tNip
-     * @param array $tKrs
+     * @param string|null $regon Regon
+     * @param string|null $nip   NIP
+     * @param string|null $krs   KRS
+     * @param array       $tRegon
+     * @param array       $tNip
+     * @param array       $tKrs
      *
-     * @return \SimpleXMLElement
+     * @return \SimpleXMLElement[]
      */
-    public function DaneSzukaj(array $tRegon = [], array $tNip = [], array $tKrs = [])
-    {
+    public function DaneSzukaj(
+        string $regon = null,
+        string $nip = null,
+        string $krs = null,
+        array $tRegon = [],
+        array $tNip = [],
+        array $tKrs = []
+    ) {
         $sRegon9zn  = null;
         $sRegon14zn = null;
         $tRegon9zn  = [];
         $tRegon14zn = [];
-        foreach ($tRegon as $regon) {
-            if (strlen($regon) === 9) {
-                $tRegon9zn[] = $regon;
+        foreach ($tRegon as $r) {
+            if (strlen($r) === 9) {
+                $tRegon9zn[] = $r;
             } else {
-                if (strlen($regon) === 14) {
-                    $tRegon14zn[] = $regon;
+                if (strlen($r) === 14) {
+                    $tRegon14zn[] = $r;
                 }
             }
         }
@@ -94,13 +111,15 @@ class NativeApi
         $res = $this->oClient->request('DaneSzukaj',
             [
                 'pParametryWyszukiwania' => [
-                    'Regon'      => null,
-                    'Krs'        => null,
-                    'Nip'        => null,
+                    'Krs'        => $krs,
+                    'Krsy'       => !empty($tKrs) ? implode(' ', $tKrs) : null,
+                    'Nip'        => $nip,
+                    'Nipy'       => !empty($tNip) ? implode(' ', $tNip) : null,
+                    'Regon'      => $regon,
                     'Regony9zn'  => !empty($tRegon9zn) ? implode(' ', $tRegon9zn) : null,
                     'Regony14zn' => !empty($tRegon14zn) ? implode(' ', $tRegon14zn) : null,
-                    'Nipy'       => !empty($tNip) ? implode(' ', $tNip) : null,
-                    'Krsy'       => !empty($tKrs) ? implode(' ', $tKrs) : null,
+
+
                 ],
             ]
         );

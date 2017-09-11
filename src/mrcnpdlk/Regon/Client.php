@@ -145,7 +145,6 @@ class Client
         $this->prepareSoapHeader($this->getActionUrl($methodName), $addSid);
         $this->oLogger->debug($methodName, $args);
         $res = $this->getSoap()->__soapCall($methodName, [$args]);
-        var_dump($res);
 
         return $res->{sprintf('%sResult', $methodName)};
     }
@@ -153,9 +152,10 @@ class Client
     /**
      * @param      $action
      *
-     * @return \mrcnpdlk\Regon\Client
-     * @internal param null $sid
+     * @param bool $addSid
      *
+     * @return Client
+     * @internal param null $sid
      */
     private function prepareSoapHeader($action, bool $addSid = true)
     {
@@ -234,6 +234,7 @@ class Client
 
     /**
      * @return $this
+     * @throws Exception
      */
     public function login()
     {
