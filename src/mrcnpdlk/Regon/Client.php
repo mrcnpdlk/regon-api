@@ -15,12 +15,6 @@ use Psr\SimpleCache\CacheInterface;
 class Client
 {
     /**
-     * Client instance
-     *
-     * @var Client
-     */
-    protected static $classInstance;
-    /**
      * SoapClient handler
      *
      * @var RegonSoapClient
@@ -67,18 +61,26 @@ class Client
     /**
      * Client constructor.
      */
-    protected function __construct()
+    public function __construct()
     {
         $this->setConfig();
         $this->setLoggerInstance();
         $this->setCacheInstance();
     }
 
+    /**
+     * Set Regon config
+     *
+     * @param string|null $key User key
+     * @param bool        $isProduction
+     *
+     * @return $this
+     */
     public function setConfig(string $key = null, bool $isProduction = false)
     {
-        $this->wsdlSvc = $isProduction ? Enum::BASE_WSDL_SVC : Enum::BASE_WSDL_SVC_TEST;
-        $this->wsdlXsd = $isProduction ? Enum::BASE_WSDL_XSD : Enum::BASE_WSDL_XSD_TEST;
-        $this->wsdlKey = $key ?? Enum::BASE_WSDL_TEST_KEY;
+        $this->wsdlSvc = $isProduction ? Enum\Connection::BASE_WSDL_SVC : Enum\Connection::BASE_WSDL_SVC_TEST;
+        $this->wsdlXsd = $isProduction ? Enum\Connection::BASE_WSDL_XSD : Enum\Connection::BASE_WSDL_XSD_TEST;
+        $this->wsdlKey = $key ?? Enum\Connection::BASE_WSDL_TEST_KEY;
 
         return $this;
 
@@ -114,35 +116,36 @@ class Client
     }
 
     /**
-     * Get Client class instance
-     *
-     * @return \mrcnpdlk\Regon\Client Instancja klasy
-     * @throws \mrcnpdlk\Regon\Exception
+     * Destructor
+     * Closing session
      */
-    public static function getInstance()
+    public function __destruct()
     {
-        if (!static::$classInstance) {
-            static::$classInstance = new static;
-        }
-
-        return static::$classInstance;
+        $this->logout();
     }
 
-    public function login()
+    /**
+     * Logout from GUS
+     *
+     * @return $this
+     */
+    public function logout()
     {
-        $res       = $this->request('Zaloguj',
+        $res       = $this->request('Wyloguj',
             [
-                'pKluczUzytkownika' => $this->wsdlKey,
+                'pIdentyfikatorSesji' => $this->sid,
             ]);
         $this->sid = $res;
 
         return $this;
     }
 
-    public function request(string $methodName, array $args = [])
+    public function request(string $methodName, array $args = [], bool $addSid = true)
     {
-        $this->prepareSoapHeader($this->getActionUrl($methodName));
+        $this->prepareSoapHeader($this->getActionUrl($methodName), $addSid);
+        $this->oLogger->debug($methodName, $args);
         $res = $this->getSoap()->__soapCall($methodName, [$args]);
+        var_dump($res);
 
         return $res->{sprintf('%sResult', $methodName)};
     }
@@ -154,29 +157,18 @@ class Client
      * @internal param null $sid
      *
      */
-    private function prepareSoapHeader($action)
+    private function prepareSoapHeader($action, bool $addSid = true)
     {
-        $this->clearHeader();
         $header   = [];
-        $header[] = $this->setHeader('http://www.w3.org/2005/08/addressing', 'Action', $action);
-        $header[] = $this->setHeader('http://www.w3.org/2005/08/addressing', 'To', $this->wsdlSvc);
+        $header[] = new \SoapHeader('http://www.w3.org/2005/08/addressing', 'Action', $action);
+        $header[] = new \SoapHeader('http://www.w3.org/2005/08/addressing', 'To', $this->wsdlSvc);
         $this->getSoap()->__setSoapHeaders($header);
-        if ($this->sid) {
+        if ($this->sid && $addSid) {
             $this->getSoap()->__setHttpHeader([
                 'header' => sprintf('sid: %s', $this->sid),
             ])
             ;
         }
-
-        return $this;
-    }
-
-    /**
-     * @return \mrcnpdlk\Regon\Client
-     */
-    private function clearHeader()
-    {
-        $this->getSoap()->__setSoapHeaders(null);
 
         return $this;
     }
@@ -191,7 +183,6 @@ class Client
             if (!$this->soapClient) {
                 $this->reinitSoap();
             }
-
         } catch (\Exception $e) {
             throw $e;
         }
@@ -221,22 +212,9 @@ class Client
     }
 
     /**
-     * @param      $namespace
-     * @param      $name
-     * @param null $data
-     * @param bool $mustUnderstand
-     *
-     * @return \SoapHeader
-     */
-    private function setHeader($namespace, $name, $data = null, $mustUnderstand = false)
-    {
-        return new \SoapHeader($namespace, $name, $data, $mustUnderstand);
-    }
-
-    /**
      * @param string $methodName
      *
-     * @return string Antion Url
+     * @return string Action Url
      */
     private function getActionUrl(string $methodName)
     {
@@ -255,16 +233,17 @@ class Client
     }
 
     /**
-     * Logout from GUS
-     *
      * @return $this
      */
-    public function logout()
+    public function login()
     {
-        $res       = $this->request('Wyloguj',
+        $res = $this->request('Zaloguj',
             [
-                'pIdentyfikatorSesji' => $this->sid,
+                'pKluczUzytkownika' => $this->wsdlKey,
             ]);
+        if (empty($res)) {
+            throw new Exception('Invalid UserKey');
+        }
         $this->sid = $res;
 
         return $this;
