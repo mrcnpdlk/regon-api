@@ -40,58 +40,45 @@ class Client
     private $oLogger;
 
     /**
-     * Regon auth configuration
-     *
-     * @var array
-     */
-    private $tRegonConfig = [];
-    /**
-     * Default Teryt auth configuration
-     *
-     * @var array
-     */
-    private $tDefRegonConfig
-        = [
-            /**
-             * Adres usługi
-             */
-            'url'  => 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc',
-            /**
-             * Adres WSDL
-             */
-            'wsdl' => 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/wsdl/UslugaBIRzewnPubl.xsd',
-            /**
-             * Klucz użytkownika (testowy)
-             */
-            'key'  => 'abcde12345abcde12345',
-        ];
-
-    /**
      * Session ID
      *
      * @var string
      */
     private $sid;
+    /**
+     * Adres Usługi (scv)
+     *
+     * @var string
+     */
+    private $wsdlSvc;
+    /**
+     * Adres WSDL (xsd)
+     *
+     * @var string
+     */
+    private $wsdlXsd;
+    /**
+     * Klucz użytkownika
+     *
+     * @var string
+     */
+    private $wsdlKey;
 
     /**
      * Client constructor.
      */
     protected function __construct()
     {
-        $this->setRegonConfig();
+        $this->setConfig();
         $this->setLoggerInstance();
         $this->setCacheInstance();
     }
 
-    public function setRegonConfig(array $tConfig = [])
+    public function setConfig(string $key = null, bool $isProduction = false)
     {
-        $this->tRegonConfig = $this->tDefRegonConfig;
-
-        foreach ($tConfig as $k => $v) {
-            if (array_key_exists($k, $this->tDefRegonConfig)) {
-                $this->tRegonConfig[$k] = $v;
-            }
-        }
+        $this->wsdlSvc = $isProduction ? Enum::BASE_WSDL_SVC : Enum::BASE_WSDL_SVC_TEST;
+        $this->wsdlXsd = $isProduction ? Enum::BASE_WSDL_XSD : Enum::BASE_WSDL_XSD_TEST;
+        $this->wsdlKey = $key ?? Enum::BASE_WSDL_TEST_KEY;
 
         return $this;
 
@@ -141,27 +128,38 @@ class Client
         return static::$classInstance;
     }
 
-    public function request(string $method, $args, $action)
+    public function login()
     {
-        $this->prepareSoapHeader($action, $this->tRegonConfig['url']);
-        $res = $this->getSoap()->__soapCall($method, [$args]);
+        $res       = $this->request('Zaloguj',
+            [
+                'pKluczUzytkownika' => $this->wsdlKey,
+            ]);
+        $this->sid = $res;
 
-        return $res->{sprintf('%sResult', $method)};
+        return $this;
+    }
+
+    public function request(string $methodName, array $args = [])
+    {
+        $this->prepareSoapHeader($this->getActionUrl($methodName));
+        $res = $this->getSoap()->__soapCall($methodName, [$args]);
+
+        return $res->{sprintf('%sResult', $methodName)};
     }
 
     /**
      * @param      $action
-     * @param      $to
-     * @param null $sid
      *
      * @return \mrcnpdlk\Regon\Client
+     * @internal param null $sid
+     *
      */
-    private function prepareSoapHeader($action, $to)
+    private function prepareSoapHeader($action)
     {
         $this->clearHeader();
         $header   = [];
         $header[] = $this->setHeader('http://www.w3.org/2005/08/addressing', 'Action', $action);
-        $header[] = $this->setHeader('http://www.w3.org/2005/08/addressing', 'To', $to);
+        $header[] = $this->setHeader('http://www.w3.org/2005/08/addressing', 'To', $this->wsdlSvc);
         $this->getSoap()->__setSoapHeaders($header);
         if ($this->sid) {
             $this->getSoap()->__setHttpHeader([
@@ -210,10 +208,10 @@ class Client
     private function reinitSoap()
     {
         try {
-            $this->soapClient = new RegonSoapClient($this->tRegonConfig['wsdl'], $this->tRegonConfig['url'], [
-                'soap_version' => SOAP_1_2,
+            $this->soapClient = new RegonSoapClient($this->wsdlXsd, $this->wsdlSvc, [
+                'soap_version' => \SOAP_1_2,
                 'trace'        => true,
-                'style'        => SOAP_DOCUMENT,
+                'style'        => \SOAP_DOCUMENT,
             ]);
         } catch (\Exception $e) {
             throw $e;
@@ -222,8 +220,54 @@ class Client
         return $this;
     }
 
+    /**
+     * @param      $namespace
+     * @param      $name
+     * @param null $data
+     * @param bool $mustUnderstand
+     *
+     * @return \SoapHeader
+     */
     private function setHeader($namespace, $name, $data = null, $mustUnderstand = false)
     {
         return new \SoapHeader($namespace, $name, $data, $mustUnderstand);
     }
+
+    /**
+     * @param string $methodName
+     *
+     * @return string Antion Url
+     */
+    private function getActionUrl(string $methodName)
+    {
+        switch ($methodName) {
+            case 'GetValue':
+            case 'PobierzCaptcha':
+            case 'SprawdzCaptcha':
+                $prefix = 'http://CIS/BIR/2014/07/IUslugaBIR';
+                break;
+            default:
+                $prefix = 'http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl';
+                break;
+        }
+
+        return sprintf('%s/%s', $prefix, $methodName);
+    }
+
+    /**
+     * Logout from GUS
+     *
+     * @return $this
+     */
+    public function logout()
+    {
+        $res       = $this->request('Wyloguj',
+            [
+                'pIdentyfikatorSesji' => $this->sid,
+            ]);
+        $this->sid = $res;
+
+        return $this;
+    }
+
 }
