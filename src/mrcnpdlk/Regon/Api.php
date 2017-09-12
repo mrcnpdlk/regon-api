@@ -152,8 +152,12 @@ class Api
             $oEntity->ceidg = $res->fizC_numerwRejestrzeEwidencji;
         }
         if ($res->fizC_numerwRejestrzeEwidencji) {
-            $oEntity->registerNr = $res->fizC_numerwRejestrzeEwidencji;
-            $oEntity->register   = new Register($res->fizC_RodzajRejestru_Symbol, $res->fizC_RodzajRejestru_Nazwa);
+            $oEntity->register = new Register(
+                $res->fizC_numerwRejestrzeEwidencji,
+                $res->fizC_RodzajRejestru_Symbol,
+                $res->fizC_RodzajRejestru_Nazwa,
+                $res->fizC_dataWpisuDoRejestruEwidencji
+            );
         }
 
         if ($res->fiz_adSiedzWojewodztwo_Symbol) {
@@ -164,8 +168,8 @@ class Api
             $oHeadAddress->provinceName   = $res->fiz_adSiedzWojewodztwo_Nazwa;
             $oHeadAddress->districtId     = $res->fiz_adSiedzPowiat_Symbol;
             $oHeadAddress->districtName   = $res->fiz_adSiedzPowiat_Nazwa;
-            $oHeadAddress->communeId      = $res->fiz_adSiedzGmina_Symbol;
-            $oHeadAddress->communeTypeId  = null;
+            $oHeadAddress->communeId      = substr($res->fiz_adSiedzGmina_Symbol, 0, 2);
+            $oHeadAddress->communeTypeId  = substr($res->fiz_adSiedzGmina_Symbol, 2, 1);
             $oHeadAddress->communeName    = $res->fiz_adSiedzGmina_Nazwa;
             $oHeadAddress->cityId         = $res->fiz_adSiedzMiejscowosc_Symbol;
             $oHeadAddress->cityName       = $res->fiz_adSiedzMiejscowosc_Nazwa;

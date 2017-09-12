@@ -8,15 +8,25 @@ class Register
     /**
      * @var string
      */
-    public $id;
+    public $nr;
     /**
      * @var string
      */
-    public $name;
+    public $typeId;
+    /**
+     * @var string
+     */
+    public $typeName;
+    /**
+     * @var string
+     */
+    public $dateAdd;
 
-    public function __construct(string $id, string $name)
+    public function __construct(string $nr, string $typeId, string $typeName, string $dateAdd)
     {
-        $this->id   = $id;
-        $this->name = $name;
+        $this->nr       = $nr;
+        $this->typeId   = $typeId;
+        $this->typeName = $typeName;
+        $this->dateAdd  = $dateAdd;
     }
 }

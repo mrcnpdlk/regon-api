@@ -48,13 +48,9 @@ class Entity
      */
     public $ceidg;
     /**
-     * @var \mrcnpdlk\Regon\Model\Register
+     * @var \mrcnpdlk\Regon\Model\Entity\Register
      */
     public $register;
-    /**
-     * @var string
-     */
-    public $registerNr;
     /**
      * Nazwa pełna
      *
