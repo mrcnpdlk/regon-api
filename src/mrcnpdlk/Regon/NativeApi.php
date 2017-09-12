@@ -55,6 +55,12 @@ final class NativeApi
         return static::$instance;
     }
 
+    /**
+     * @param string $regon
+     * @param string $reportName
+     *
+     * @return \stdClass[]
+     */
     public function DanePobierzPelnyRaport(string $regon, string $reportName)
     {
         $hashKey = md5(json_encode([__METHOD__, $reportName, $reportName]));

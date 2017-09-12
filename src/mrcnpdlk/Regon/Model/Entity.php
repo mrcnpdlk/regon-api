@@ -18,13 +18,13 @@ class Entity
      */
     public $basicLegalFormName;
     /**
-     * Szczególna orma prawna - ID
+     * Szczególna forma prawna - ID
      *
      * @var string
      */
     public $detailedLegalFormId;
     /**
-     * Szczególna orma prawna - nazwa
+     * Szczególna forma prawna - nazwa
      *
      * @var string
      */
@@ -48,6 +48,14 @@ class Entity
      */
     public $ceidg;
     /**
+     * @var \mrcnpdlk\Regon\Model\Register
+     */
+    public $register;
+    /**
+     * @var string
+     */
+    public $registerNr;
+    /**
      * Nazwa pełna
      *
      * @var string
@@ -60,58 +68,14 @@ class Entity
      */
     public $nameShort;
     /**
-     * @var Owner
+     * @var Entity\Owner
      */
     public $owner;
 
     /**
-     * Data wpisu do REGON
-     *
-     * @var string
+     * @var \mrcnpdlk\Regon\Model\Entity\Date
      */
-    public $dateAdd;
-    /**
-     * Data wpisu do REGON
-     *
-     * @var string
-     */
-    public $dateCreate;
-    /**
-     * Data rozpoczęcia działalności
-     *
-     * @var string
-     */
-    public $dateStart;
-    /**
-     * Data zakończenia
-     *
-     * @var string
-     */
-    public $dateSuspend;
-    /**
-     * Data odwweszenia
-     *
-     * @var string
-     */
-    public $dateResume;
-    /**
-     * Data zmiany wpisu
-     *
-     * @var string
-     */
-    public $dateChange;
-    /**
-     * Data zamknięcia
-     *
-     * @var string
-     */
-    public $dateClose;
-    /**
-     * Data wykreślenia z REGON
-     *
-     * @var string
-     */
-    public $dateDelete;
+    public $history;
 
     /**
      * Liczba jednostek lokalnych/oddziałów
@@ -123,13 +87,13 @@ class Entity
     /**
      * Dane adresowe siedziby głównej
      *
-     * @var Address
+     * @var Entity\Address
      */
     public $addressHead;
     /**
      * Dane adresowe korespondencji
      *
-     * @var Address
+     * @var Entity\Address
      */
     public $addressCorr;
     /**
@@ -144,7 +108,6 @@ class Entity
      * @var string
      */
     public $contactEmail;
-
 
 
     public function __construct()
