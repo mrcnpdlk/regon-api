@@ -1,9 +1,4 @@
 <?php
-/**
- * Created by Marcin.
- * Date: 11.09.2017
- * Time: 21:58
- */
 
 namespace mrcnpdlk\Regon\Model;
 
@@ -11,83 +6,148 @@ namespace mrcnpdlk\Regon\Model;
 class Entity
 {
     /**
-     * Regon ID
+     * Forma prawna - ID
      *
+     * @var string
+     */
+    public $basicLegalFormId;
+    /**
+     * Forma prawna - nazwa
+     *
+     * @var string
+     */
+    public $basicLegalFormName;
+    /**
+     * Szczególna orma prawna - ID
+     *
+     * @var string
+     */
+    public $detailedLegalFormId;
+    /**
+     * Szczególna orma prawna - nazwa
+     *
+     * @var string
+     */
+    public $detailedLegalFormName;
+    /**
      * @var string
      */
     public $regon;
     /**
-     * Entity name
+     * @var string
+     */
+    public $nip;
+    /**
+     * @var string
+     */
+    public $krs;
+    /**
+     * Numer wpisu do CEIDG
+     *
+     * @var string
+     */
+    public $ceidg;
+    /**
+     * Nazwa pełna
      *
      * @var string
      */
     public $name;
     /**
-     * Province name
+     * Nazwa skrócona
      *
      * @var string
      */
-    public $provinceName;
+    public $nameShort;
     /**
-     * District name
-     *
-     * @var string
+     * @var Owner
      */
-    public $districtName;
-    /**
-     * Commune name
-     *
-     * @var string
-     */
-    public $communeName;
-    /**
-     * City name
-     *
-     * @var string
-     */
-    public $cityName;
-    /**
-     * Postal code
-     *
-     * @var string
-     */
-    public $postalCode;
-    /**
-     * Street name
-     *
-     * @var string
-     */
-    public $streetName;
-    /**
-     * @var string
-     */
-    protected $typeId;
-    /**
-     * @var string
-     */
-    protected $silosId;
+    public $owner;
 
-    public function __construct(\SimpleXMLElement $element)
+    /**
+     * Data wpisu do REGON
+     *
+     * @var string
+     */
+    public $dateAdd;
+    /**
+     * Data wpisu do REGON
+     *
+     * @var string
+     */
+    public $dateCreate;
+    /**
+     * Data rozpoczęcia działalności
+     *
+     * @var string
+     */
+    public $dateStart;
+    /**
+     * Data zakończenia
+     *
+     * @var string
+     */
+    public $dateSuspend;
+    /**
+     * Data odwweszenia
+     *
+     * @var string
+     */
+    public $dateResume;
+    /**
+     * Data zmiany wpisu
+     *
+     * @var string
+     */
+    public $dateChange;
+    /**
+     * Data zamknięcia
+     *
+     * @var string
+     */
+    public $dateClose;
+    /**
+     * Data wykreślenia z REGON
+     *
+     * @var string
+     */
+    public $dateDelete;
+
+    /**
+     * Liczba jednostek lokalnych/oddziałów
+     *
+     * @var int
+     */
+    public $departmentsCount;
+
+    /**
+     * Dane adresowe siedziby głównej
+     *
+     * @var Address
+     */
+    public $addressHead;
+    /**
+     * Dane adresowe korespondencji
+     *
+     * @var Address
+     */
+    public $addressCorr;
+    /**
+     * Telefon kontaktowy
+     *
+     * @var string
+     */
+    public $contactPhone;
+    /**
+     * Adres email
+     *
+     * @var string
+     */
+    public $contactEmail;
+
+
+
+    public function __construct()
     {
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->regon = strval($element->Regon);
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->name         = strval($element->Nazwa);
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->provinceName = strval($element->Wojewodztwo);
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->districtName = strval($element->Powiat);
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->communeName = strval($element->Gmina);
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->cityName   = strval($element->Miejscowosc);
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->postalCode = strval($element->KodPocztowy);
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->streetName = strval($element->Ulica);
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->typeId = strval($element->Typ);
-        /** @noinspection PhpUndefinedFieldInspection */
-        $this->silosId = strval($element->SilosID);
     }
 }

@@ -4,55 +4,126 @@ namespace mrcnpdlk\Regon;
 
 
 use mrcnpdlk\Regon\Enum\Connection;
+use mrcnpdlk\Regon\Exception\InvalidResponse;
 
 /**
  * Class NativeApi
  *
  * @package mrcnpdlk\Regon
  */
-class NativeApi
+final class NativeApi
 {
+    /**
+     * @var \mrcnpdlk\Regon\NativeApi
+     */
+    protected static $instance = null;
     /**
      * @var Client
      */
     private $oClient;
 
-    public function __construct(Client $oClient)
+    protected function __construct(Client $oClient)
     {
         $this->oClient = $oClient;
         $this->oClient->login();
     }
 
+    /**
+     * @param \mrcnpdlk\Regon\Client $oClient
+     *
+     * @return \mrcnpdlk\Regon\NativeApi
+     */
+    public static function create(Client $oClient)
+    {
+        if (!isset(static::$instance)) {
+            static::$instance = new static($oClient);
+        }
+
+        return static::$instance;
+    }
+
+    /**
+     * @return \mrcnpdlk\Regon\NativeApi
+     * @throws \mrcnpdlk\Regon\Exception
+     */
+    public static function getInstance()
+    {
+        if (!isset(static::$instance)) {
+            throw new Exception(sprintf('First call CREATE method!'));
+        }
+
+        return static::$instance;
+    }
+
     public function DanePobierzPelnyRaport(string $regon, string $reportName)
     {
-        $res = $this->oClient->request('DanePobierzPelnyRaport',
-            [
-                'pRegon'        => $regon,
-                'pNazwaRaportu' => $reportName,
-            ]);
+        $hashKey = md5(json_encode([__METHOD__, $reportName, $reportName]));
+        $self    = $this;
 
-        return $this->decodeResponse($res);
+        return $this->useCache(function () use ($self, $regon, $reportName) {
+            $res = $this->oClient->request('DanePobierzPelnyRaport',
+                [
+                    'pRegon'        => $regon,
+                    'pNazwaRaportu' => $reportName,
+                ]);
+
+            return $this->decodeResponse($res);
+        }
+            , $hashKey);
+
+    }
+
+    /**
+     * Caching things
+     *
+     * @param \Closure $closure Function calling wheen cache is empty or not valid
+     * @param mixed    $hashKey Cache key of item
+     * @param int|null $ttl     Time to live for item
+     *
+     * @return mixed
+     */
+    private function useCache(\Closure $closure, string $hashKey, int $ttl = null)
+    {
+        if ($this->oClient->getCache()) {
+            if ($this->oClient->getCache()->has($hashKey)) {
+                $answer = $this->oClient->getCache()->get($hashKey);
+                $this->oClient->getLogger()->debug(sprintf('CACHE [%s]: geting from cache', $hashKey));
+            } else {
+                $answer = $closure();
+                $this->oClient->getCache()->set($hashKey, $answer, $ttl);
+                $this->oClient->getLogger()->debug(sprintf('CACHE [%s]: old, reset', $hashKey));
+            }
+        } else {
+            $this->oClient->getLogger()->debug(sprintf('CACHE [%s]: no implemented', $hashKey));
+            $answer = $closure();
+        }
+
+        return $answer;
     }
 
     /**
      * @param string $response xml string
      *
-     * @return \SimpleXMLElement[]
+     * @return \stdClass[]
      * @throws Exception\InvalidResponse
-     * @todo Sparwdzic czy 'dane' istnieja
      */
     private function decodeResponse(string $response)
     {
         $answer = [];
         $code   = intval($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE_CODE));
         if ($code) {
-            throw new Exception\InvalidResponse($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE), $code);
+            throw new InvalidResponse($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE), $code);
         }
 
         $res = new \SimpleXMLElement($response);
 
         foreach ($res->children() as $child) {
-            $answer[] = $child;
+            $item = json_decode(json_encode($child));
+            //clearing data - empty object as NULL
+            foreach (get_object_vars($item) as $key => &$value) {
+                $item->$key = empty((array)$value) ? null : (is_string($value) ? trim($value) : $value);
+            }
+            $answer[] = $item;
         }
 
         return $answer;
@@ -83,7 +154,7 @@ class NativeApi
      * @param array       $tNip
      * @param array       $tKrs
      *
-     * @return \SimpleXMLElement[]
+     * @return \stdClass[]
      */
     public function DaneSzukaj(
         string $regon = null,
@@ -100,10 +171,8 @@ class NativeApi
         foreach ($tRegon as $r) {
             if (strlen($r) === 9) {
                 $tRegon9zn[] = $r;
-            } else {
-                if (strlen($r) === 14) {
-                    $tRegon14zn[] = $r;
-                }
+            } elseif (strlen($r) === 14) {
+                $tRegon14zn[] = $r;
             }
         }
 
@@ -151,4 +220,15 @@ class NativeApi
 
         return $this;
     }
+
+    public function __wakeup()
+    {
+        throw new Exception("Cannot unserialize singleton");
+    }
+
+    protected function __clone()
+    {
+        //Me not like clones! Me smash clones!
+    }
+
 }

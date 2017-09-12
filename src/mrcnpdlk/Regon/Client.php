@@ -134,7 +134,8 @@ class Client
         $res       = $this->request('Wyloguj',
             [
                 'pIdentyfikatorSesji' => $this->sid,
-            ]);
+            ],
+            false);
         $this->sid = $res;
 
         return $this;
@@ -241,13 +242,24 @@ class Client
         $res = $this->request('Zaloguj',
             [
                 'pKluczUzytkownika' => $this->wsdlKey,
-            ]);
+            ],
+            false);
         if (empty($res)) {
             throw new Exception('Invalid UserKey');
         }
         $this->sid = $res;
 
         return $this;
+    }
+
+    public function getCache()
+    {
+        return $this->oCache;
+    }
+
+    public function getLogger()
+    {
+        return $this->oLogger;
     }
 
 }

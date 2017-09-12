@@ -7,7 +7,6 @@
 
 namespace mrcnpdlk\Regon\Exception;
 
-
 use mrcnpdlk\Regon\Exception;
 
 /**
