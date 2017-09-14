@@ -75,7 +75,7 @@ $oInstanceLogger->pushHandler(new \Monolog\Handler\ErrorLogHandler(
 
 ```
 
-### Teryt Authentication
+### REGON Authentication
 Service REGON shares API based on `SOAP Protocol`. More information about service you can find on 
 this [site](http://bip.stat.gov.pl/dzialalnosc-statystyki-publicznej/rejestr-regon/interfejsyapi/jak-skorzystac-informacja-dla-podmiotow-komercyjnych/)
 There are two ways to connect to the server:
