@@ -20,7 +20,11 @@
   },
   "require-dev": {
     "monolog/monolog": "^1.23",
-    "phpfastcache/phpfastcache": "~6.0"
+    "phpfastcache/phpfastcache": "~6.0",
+    "phpunit/phpunit": "~6.3",
+    "mockery/mockery": "~0",
+    "phpdocumentor/phpdocumentor": "2.*",
+    "cvuorinen/phpdoc-markdown-public": "*"
   },
   "autoload": {
     "psr-4": {

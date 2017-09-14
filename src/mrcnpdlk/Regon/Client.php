@@ -9,7 +9,7 @@
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
  *
- * @author Marcin Pudełek <marcin@pudelek.org.pl>
+ * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
 
@@ -260,11 +260,33 @@ class Client
         return $this;
     }
 
+    /**
+     * Check if session exists
+     *
+     * @return boolean
+     */
+    public function isLogged()
+    {
+        $res = $this->request('GetValue',
+            [
+                'pNazwaParametru' => 'StatusSesji',
+            ],
+            true);
+
+        return $res === '1';
+    }
+
+    /**
+     * @return CacheInterface
+     */
     public function getCache()
     {
         return $this->oCache;
     }
 
+    /**
+     * @return LoggerInterface
+     */
     public function getLogger()
     {
         return $this->oLogger;

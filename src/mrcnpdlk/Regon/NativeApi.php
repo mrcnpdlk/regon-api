@@ -161,7 +161,7 @@ final class NativeApi
             [
                 'pNazwaParametru' => $valueName,
             ],
-            false
+            true
         );
 
         return $res;
