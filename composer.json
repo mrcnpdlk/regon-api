@@ -1,6 +1,13 @@
 {
   "name": "mrcnpdlk/regon-api",
   "description": "GUS Regon API",
+  "keywords": [
+    "gus",
+    "regon",
+    "soap",
+    "krs",
+    "nip"
+  ],
   "type": "library",
   "license": "MIT",
   "authors": [
