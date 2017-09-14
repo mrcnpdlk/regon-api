@@ -13,8 +13,7 @@
 [![Issue Count](https://codeclimate.com/github/mrcnpdlk/regon-api/badges/issue_count.svg)](https://codeclimate.com/github/mrcnpdlk/regon-api)
 
 
-[![Dependency Status](https://www.versioneye.com/user/projects/59b2679a368b08003d0e8455/badge.svg)](https://www.versioneye.com/user/projects/59b2679a368b08003d0e8455?child=summary) 
-
+[![Dependency Status](https://www.versioneye.com/user/projects/59bae8ff0fb24f0056dfc148/badge.svg)](https://www.versioneye.com/user/projects/59bae8ff0fb24f0056dfc148)
 
 # REGON API - Polish companies database
 
