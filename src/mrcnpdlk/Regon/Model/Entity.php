@@ -122,23 +122,23 @@ class Entity
     public function __construct(\stdClass $oData = null)
     {
         if ($oData) {
-            $this->name      = $oData->fiz_nazwa;
-            $this->nameShort = $oData->fiz_nazwaSkrocona;
+            $this->name      = $oData->fiz_nazwa ?? $oData->praw_nazwa;
+            $this->nameShort = $oData->fiz_nazwaSkrocona ?? $oData->praw_nazwaSkrocona;
 
             $oDate          = new Entity\Date();
-            $oDate->create  = $oData->fiz_dataPowstania;
-            $oDate->start   = $oData->fiz_dataRozpoczeciaDzialalnosci;
-            $oDate->add     = $oData->fiz_dataWpisuDoREGONDzialalnosci;
-            $oDate->suspend = $oData->fiz_dataZawieszeniaDzialalnosci;
-            $oDate->resume  = $oData->fiz_dataWznowieniaDzialalnosci;
-            $oDate->change  = $oData->fiz_dataZaistnieniaZmianyDzialalnosci;
-            $oDate->close   = $oData->fiz_dataZakonczeniaDzialalnosci;
-            $oDate->delete  = $oData->fiz_dataSkresleniazRegonDzialalnosci;
+            $oDate->create  = $oData->fiz_dataPowstania ?? $oData->praw_dataPowstania;
+            $oDate->start   = $oData->fiz_dataRozpoczeciaDzialalnosci ?? $oData->praw_dataRozpoczeciaDzialalnosci;
+            $oDate->add     = $oData->fiz_dataWpisuDoREGONDzialalnosci ?? $oData->praw_dataWpisuDoREGON;
+            $oDate->suspend = $oData->fiz_dataZawieszeniaDzialalnosci ?? $oData->praw_dataZawieszeniaDzialalnosci;
+            $oDate->resume  = $oData->fiz_dataWznowieniaDzialalnosci ?? $oData->praw_dataWznowieniaDzialalnosci;
+            $oDate->change  = $oData->fiz_dataZaistnieniaZmianyDzialalnosci ?? $oData->praw_dataZaistnieniaZmiany;
+            $oDate->close   = $oData->fiz_dataZakonczeniaDzialalnosci ?? $oData->praw_dataZakonczeniaDzialalnosci;
+            $oDate->delete  = $oData->fiz_dataSkresleniazRegonDzialalnosci ?? $oData->praw_dataSkresleniazRegon;
 
             $this->history = $oDate;
 
-            $this->contactPhone = $oData->fiz_numerTelefonu;
-            $this->contactEmail = $oData->fiz_adresEmail;
+            $this->contactPhone = $oData->fiz_numerTelefonu ?? $oData->praw_numerTelefonu;
+            $this->contactEmail = $oData->fiz_adresEmail ?? $oData->praw_adresEmail;
             if (isset($oData->fizC_RodzajRejestru_Symbol) && ($oData->fizC_RodzajRejestru_Symbol === '151')) { //CEIDG
                 $this->ceidg = $oData->fizC_numerwRejestrzeEwidencji;
             }
@@ -156,6 +156,15 @@ class Entity
                     $oData->fizP_RodzajRejestru_Symbol,
                     $oData->fizP_RodzajRejestru_Nazwa,
                     $oData->fizP_dataWpisuDoRejestruEwidencji
+                );
+            }
+
+            if (isset($oData->praw_numerWrejestrzeEwidencji)) {
+                $this->register = new Register(
+                    $oData->praw_numerWrejestrzeEwidencji,
+                    $oData->praw_rodzajRejestruEwidencji_Symbol,
+                    $oData->praw_rodzajRejestruEwidencji_Nazwa,
+                    null
                 );
             }
 

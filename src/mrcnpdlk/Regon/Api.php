@@ -198,10 +198,8 @@ class Api
 
     public function getReportForPhysic(string $regon)
     {
-
         $searchedItems = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_PERSON);
         $searchedItem  = $searchedItems[0];
-        var_dump($searchedItem);
         if ($searchedItem->fiz_dzialalnosciCeidg === '1') {
             $tReports = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_CEIDG);
             $oData    = $tReports[0];
@@ -228,6 +226,16 @@ class Api
 
         return $oEntity;
 
+    }
+
+    public function getReportForLaw(string $regon)
+    {
+        $searchedItems = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_PUBLIC_LAW);
+        $oData         = $searchedItems[0];
+        print_r($oData);
+        $oEntity = new Entity($oData);
+
+        return $oEntity;
     }
 
 }
