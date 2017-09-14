@@ -3,6 +3,7 @@
 namespace mrcnpdlk\Regon;
 
 use mrcnpdlk\Regon\Enum\Report;
+use mrcnpdlk\Regon\Exception\InvalidResponse;
 use mrcnpdlk\Regon\Model\Entity;
 use mrcnpdlk\Regon\Model\Entity\Address;
 use mrcnpdlk\Regon\Model\Entity\Owner;
@@ -122,13 +123,22 @@ class Api
     {
         $oEntity = new Entity();
 
-        $searchedItems  = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_PERSON);
-        $res            = $searchedItems[0];
-        $oEntity->nip   = $res->fiz_nip;
-        $oEntity->owner = new Owner($res->fiz_imie1, $res->fiz_nazwisko, $res->fiz_imie2);
+        $searchedItems = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_PERSON);
+        $searchedItem  = $searchedItems[0];
 
-        $searchedItems = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_CEIDG);
-        $res           = $searchedItems[0];
+        $oEntity->nip   = $searchedItem->fiz_nip;
+        $oEntity->owner = new Owner($searchedItem->fiz_imie1, $searchedItem->fiz_nazwisko, $searchedItem->fiz_imie2);
+
+        if ($searchedItem->fiz_dzialalnosciCeidg === '1') {
+            $tReports = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_CEIDG);
+            $res      = $tReports[0];
+        } elseif ($searchedItem->fiz_dzialalnosciRolniczych === '1') {
+            $tReports = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_AGRO);
+            $res      = $tReports[0];
+        } else {
+            throw new InvalidResponse(sprintf(''));
+        }
+
 
         $oEntity->regon     = $res->fiz_regon9;
         $oEntity->name      = $res->fiz_nazwa;
@@ -185,4 +195,39 @@ class Api
 
         return $oEntity;
     }
+
+    public function getReportForPhysic(string $regon)
+    {
+
+        $searchedItems = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_PERSON);
+        $searchedItem  = $searchedItems[0];
+        var_dump($searchedItem);
+        if ($searchedItem->fiz_dzialalnosciCeidg === '1') {
+            $tReports = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_CEIDG);
+            $oData    = $tReports[0];
+        } elseif ($searchedItem->fiz_dzialalnosciRolniczych === '1') {
+            $tReports = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_AGRO);
+            $oData    = $tReports[0];
+        } elseif ($searchedItem->fiz_dzialalnosciPozostalych === '1') {
+            $tReports = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_OTHER);
+            $oData    = $tReports[0];
+        } elseif ($searchedItem->fiz_dzialalnosciZKrupgn === '1') {
+            $tReports = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_KRUPGN);
+            $oData    = $tReports[0];
+        } else {
+            throw new InvalidResponse(sprintf(''));
+        }
+
+        $oEntity                     = new Entity($oData);
+        $oEntity->basicLegalFormId   = $searchedItem->fiz_podstawowaFormaPrawna_Symbol;
+        $oEntity->basicLegalFormName = $searchedItem->fiz_podstawowaFormaPrawna_Nazwa;
+        $oEntity->nip                = $searchedItem->fiz_nip;
+        $oEntity->regon              = $searchedItem->fiz_regon9;
+        $oEntity->isActive           = empty($searchedItem->fiz_dataSkresleniazRegon);
+        $oEntity->owner              = new Owner($searchedItem->fiz_imie1, $searchedItem->fiz_nazwisko, $searchedItem->fiz_imie2);
+
+        return $oEntity;
+
+    }
+
 }

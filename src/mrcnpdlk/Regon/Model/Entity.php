@@ -3,6 +3,9 @@
 namespace mrcnpdlk\Regon\Model;
 
 
+use mrcnpdlk\Regon\Model\Entity\Address;
+use mrcnpdlk\Regon\Model\Entity\Register;
+
 class Entity
 {
     /**
@@ -29,6 +32,12 @@ class Entity
      * @var string
      */
     public $detailedLegalFormName;
+    /**
+     * Czy aktywna
+     *
+     * @var boolean
+     */
+    public $isActive;
     /**
      * @var string
      */
@@ -104,9 +113,74 @@ class Entity
      * @var string
      */
     public $contactEmail;
+    /**
+     * @var string[]
+     */
+    public $availableReports;
 
 
-    public function __construct()
+    public function __construct(\stdClass $oData = null)
     {
+        if ($oData) {
+            $this->name      = $oData->fiz_nazwa;
+            $this->nameShort = $oData->fiz_nazwaSkrocona;
+
+            $oDate          = new Entity\Date();
+            $oDate->create  = $oData->fiz_dataPowstania;
+            $oDate->start   = $oData->fiz_dataRozpoczeciaDzialalnosci;
+            $oDate->add     = $oData->fiz_dataWpisuDoREGONDzialalnosci;
+            $oDate->suspend = $oData->fiz_dataZawieszeniaDzialalnosci;
+            $oDate->resume  = $oData->fiz_dataWznowieniaDzialalnosci;
+            $oDate->change  = $oData->fiz_dataZaistnieniaZmianyDzialalnosci;
+            $oDate->close   = $oData->fiz_dataZakonczeniaDzialalnosci;
+            $oDate->delete  = $oData->fiz_dataSkresleniazRegonDzialalnosci;
+
+            $this->history = $oDate;
+
+            $this->contactPhone = $oData->fiz_numerTelefonu;
+            $this->contactEmail = $oData->fiz_adresEmail;
+            if (isset($oData->fizC_RodzajRejestru_Symbol) && ($oData->fizC_RodzajRejestru_Symbol === '151')) { //CEIDG
+                $this->ceidg = $oData->fizC_numerwRejestrzeEwidencji;
+            }
+            if (isset($oData->fizC_numerwRejestrzeEwidencji)) {
+                $this->register = new Register(
+                    $oData->fizC_numerwRejestrzeEwidencji,
+                    $oData->fizC_RodzajRejestru_Symbol,
+                    $oData->fizC_RodzajRejestru_Nazwa,
+                    $oData->fizC_dataWpisuDoRejestruEwidencji
+                );
+            }
+            if (isset($oData->fizP_numerwRejestrzeEwidencji)) {
+                $this->register = new Register(
+                    $oData->fizP_numerwRejestrzeEwidencji,
+                    $oData->fizP_RodzajRejestru_Symbol,
+                    $oData->fizP_RodzajRejestru_Nazwa,
+                    $oData->fizP_dataWpisuDoRejestruEwidencji
+                );
+            }
+
+            if ($oData->fiz_adSiedzWojewodztwo_Symbol) {
+                $oHeadAddress                 = new Address();
+                $oHeadAddress->countryId      = $oData->fiz_adSiedzKraj_Symbol;
+                $oHeadAddress->countryName    = $oData->fiz_adSiedzKraj_Nazwa;
+                $oHeadAddress->provinceId     = $oData->fiz_adSiedzWojewodztwo_Symbol;
+                $oHeadAddress->provinceName   = $oData->fiz_adSiedzWojewodztwo_Nazwa;
+                $oHeadAddress->districtId     = $oData->fiz_adSiedzPowiat_Symbol;
+                $oHeadAddress->districtName   = $oData->fiz_adSiedzPowiat_Nazwa;
+                $oHeadAddress->communeId      = substr($oData->fiz_adSiedzGmina_Symbol, 0, 2);
+                $oHeadAddress->communeTypeId  = substr($oData->fiz_adSiedzGmina_Symbol, 2, 1);
+                $oHeadAddress->communeName    = $oData->fiz_adSiedzGmina_Nazwa;
+                $oHeadAddress->cityId         = $oData->fiz_adSiedzMiejscowosc_Symbol;
+                $oHeadAddress->cityName       = $oData->fiz_adSiedzMiejscowosc_Nazwa;
+                $oHeadAddress->postalCityId   = $oData->fiz_adSiedzMiejscowoscPoczty_Symbol;
+                $oHeadAddress->postalCityName = $oData->fiz_adSiedzMiejscowoscPoczty_Nazwa;
+                $oHeadAddress->postalCode     = $oData->fiz_adSiedzKodPocztowy;
+                $oHeadAddress->streetId       = $oData->fiz_adSiedzUlica_Symbol;
+                $oHeadAddress->streetName     = $oData->fiz_adSiedzUlica_Nazwa;
+                $oHeadAddress->homeNr         = $oData->fiz_adSiedzNumerNieruchomosci;
+                $oHeadAddress->flatNr         = $oData->fiz_adSiedzNumerLokalu;
+                $this->addressHead            = $oHeadAddress;
+            }
+        }
     }
 }
