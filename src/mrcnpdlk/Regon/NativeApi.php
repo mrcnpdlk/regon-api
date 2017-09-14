@@ -5,6 +5,7 @@ namespace mrcnpdlk\Regon;
 
 use mrcnpdlk\Regon\Enum\Connection;
 use mrcnpdlk\Regon\Exception\InvalidResponse;
+use mrcnpdlk\Regon\Exception\NotFound;
 
 /**
  * Class NativeApi
@@ -63,7 +64,7 @@ final class NativeApi
      */
     public function DanePobierzPelnyRaport(string $regon, string $reportName)
     {
-        $hashKey = md5(json_encode([__METHOD__, $reportName, $reportName]));
+        $hashKey = md5(json_encode([__METHOD__, $regon, $reportName]));
         $self    = $this;
 
         return $this->useCache(function () use ($self, $regon, $reportName) {
@@ -118,6 +119,8 @@ final class NativeApi
         $answer = [];
         $code   = intval($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE_CODE));
         if ($code) {
+            throw new NotFound($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE), $code);
+        } elseif ($code) {
             throw new InvalidResponse($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE), $code);
         }
 

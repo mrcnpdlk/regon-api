@@ -42,4 +42,16 @@ class Date
      * @var string
      */
     public $delete;
+
+    /**
+     * @return bool
+     */
+    public function isActive()
+    {
+        if ($this->close || $this->delete) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

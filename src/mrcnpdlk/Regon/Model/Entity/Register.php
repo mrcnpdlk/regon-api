@@ -22,7 +22,7 @@ class Register
      */
     public $dateAdd;
 
-    public function __construct(string $nr, string $typeId, string $typeName, string $dateAdd = null)
+    public function __construct(string $nr = null, string $typeId, string $typeName, string $dateAdd = null)
     {
         $this->nr       = $nr;
         $this->typeId   = $typeId;
