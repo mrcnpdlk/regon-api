@@ -92,7 +92,7 @@ class SearchResult
         /** @noinspection PhpUndefinedFieldInspection */
         $this->postalCode = $element->KodPocztowy;
         /** @noinspection PhpUndefinedFieldInspection */
-        $this->streetName = $element->Ulica;
+        $this->streetName = $element->Ulica ?? null;
         /** @noinspection PhpUndefinedFieldInspection */
         $this->typeId = $element->Typ;
         /** @noinspection PhpUndefinedFieldInspection */
