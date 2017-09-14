@@ -126,6 +126,11 @@ class Api
         return new SearchResult($tList[0]);
     }
 
+    /**
+     * @param string $regon
+     *
+     * @return Entity
+     */
     private function getReportForLaw(string $regon)
     {
         $searchedItems = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_PUBLIC_LAW);
