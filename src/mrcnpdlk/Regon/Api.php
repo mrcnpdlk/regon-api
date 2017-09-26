@@ -104,10 +104,16 @@ class Api
             case 'LP':
                 $oEntity             = $this->getReportForLawLocal($regon);
                 $oEntity->mainEntity = $this->getReport($oEntity->regon9);
+                if (!$oEntity->nip) {
+                    $oEntity->nip = $oEntity->mainEntity->nip;
+                }
                 break;
             case 'LF':
                 $oEntity             = $this->getReportForPhysicLocal($regon);
                 $oEntity->mainEntity = $this->getReport($oEntity->regon9);
+                if (!$oEntity->nip) {
+                    $oEntity->nip = $oEntity->mainEntity->nip;
+                }
                 break;
         }
 
