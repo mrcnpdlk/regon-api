@@ -143,6 +143,10 @@ final class NativeApi
             //clearing data - empty object as NULL
             foreach (get_object_vars($item) as $key => &$value) {
                 $item->$key = empty((array)$value) ? null : (is_string($value) ? trim($value) : $value);
+                //fix - czasem nip byl jako pusty \sdtClass
+                if (is_object($item->$key)) {
+                    $item->$key = null;
+                }
             }
             $answer[] = $item;
         }
