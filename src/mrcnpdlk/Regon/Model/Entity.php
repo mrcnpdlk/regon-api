@@ -150,14 +150,22 @@ class Entity
             $this->nameShort = $oData->fiz_nazwaSkrocona ?? $oData->praw_nazwaSkrocona ?? null;
 
             $oDate          = new Entity\Date();
-            $oDate->create  = $oData->fiz_dataPowstania ?? $oData->praw_dataPowstania ?? $oData->lokpraw_dataPowstania ?? $oData->lokfiz_dataPowstania ?? null;
-            $oDate->start   = $oData->fiz_dataRozpoczeciaDzialalnosci ?? $oData->praw_dataRozpoczeciaDzialalnosci ?? $oData->lokpraw_dataRozpoczeciaDzialalnosci ?? $oData->lokfiz_dataRozpoczeciaDzialalnosci ?? null;
-            $oDate->add     = $oData->fiz_dataWpisuDoREGONDzialalnosci ?? $oData->praw_dataWpisuDoREGON ?? $oData->lokpraw_dataWpisuDoREGON ?? $oData->lokfiz_dataWpisuDoREGON ?? null;
-            $oDate->suspend = $oData->fiz_dataZawieszeniaDzialalnosci ?? $oData->praw_dataZawieszeniaDzialalnosci ?? $oData->lokpraw_dataZawieszeniaDzialalnosci ?? $oData->lokfiz_dataZawieszeniaDzialalnosci ?? null;
-            $oDate->resume  = $oData->fiz_dataWznowieniaDzialalnosci ?? $oData->praw_dataWznowieniaDzialalnosci ?? $oData->lokpraw_dataWznowieniaDzialalnosci ?? $oData->lokfiz_dataWznowieniaDzialalnosci ?? null;
-            $oDate->change  = $oData->fiz_dataZaistnieniaZmianyDzialalnosci ?? $oData->praw_dataZaistnieniaZmiany ?? $oData->lokpraw_dataZaistnieniaZmiany ?? $oData->lokfiz_dataZaistnieniaZmiany ?? null;
-            $oDate->close   = $oData->fiz_dataZakonczeniaDzialalnosci ?? $oData->praw_dataZakonczeniaDzialalnosci ?? $oData->lokpraw_dataZakonczeniaDzialalnosci ?? $oData->lokfiz_dataZakonczeniaDzialalnosci ?? null;
-            $oDate->delete  = $oData->fiz_dataSkresleniazRegonDzialalnosci ?? $oData->praw_dataSkresleniazRegon ?? $oData->lokpraw_dataSkresleniazRegon ?? $oData->lokfiz_dataSkresleniazRegon ?? null;
+            $oDate->create  = $oData->fiz_dataPowstania ??
+                $oData->praw_dataPowstania ?? $oData->lokpraw_dataPowstania ?? $oData->lokfiz_dataPowstania ?? null;
+            $oDate->start   = $oData->fiz_dataRozpoczeciaDzialalnosci ?? $oData->praw_dataRozpoczeciaDzialalnosci ??
+                $oData->lokpraw_dataRozpoczeciaDzialalnosci ?? $oData->lokfiz_dataRozpoczeciaDzialalnosci ?? null;
+            $oDate->add     = $oData->fiz_dataWpisuDoREGONDzialalnosci ??
+                $oData->praw_dataWpisuDoREGON ?? $oData->lokpraw_dataWpisuDoREGON ?? $oData->lokfiz_dataWpisuDoREGON ?? null;
+            $oDate->suspend = $oData->fiz_dataZawieszeniaDzialalnosci ?? $oData->praw_dataZawieszeniaDzialalnosci ??
+                $oData->lokpraw_dataZawieszeniaDzialalnosci ?? $oData->lokfiz_dataZawieszeniaDzialalnosci ?? null;
+            $oDate->resume  = $oData->fiz_dataWznowieniaDzialalnosci ?? $oData->praw_dataWznowieniaDzialalnosci ??
+                $oData->lokpraw_dataWznowieniaDzialalnosci ?? $oData->lokfiz_dataWznowieniaDzialalnosci ?? null;
+            $oDate->change  = $oData->fiz_dataZaistnieniaZmianyDzialalnosci ??
+                $oData->praw_dataZaistnieniaZmiany ?? $oData->lokpraw_dataZaistnieniaZmiany ?? $oData->lokfiz_dataZaistnieniaZmiany ?? null;
+            $oDate->close   = $oData->fiz_dataZakonczeniaDzialalnosci ?? $oData->praw_dataZakonczeniaDzialalnosci ??
+                $oData->lokpraw_dataZakonczeniaDzialalnosci ?? $oData->lokfiz_dataZakonczeniaDzialalnosci ?? null;
+            $oDate->delete  = $oData->fiz_dataSkresleniazRegonDzialalnosci ??
+                $oData->praw_dataSkresleniazRegon ?? $oData->lokpraw_dataSkresleniazRegon ?? $oData->lokfiz_dataSkresleniazRegon ?? null;
 
             $this->history = $oDate;
 
@@ -322,7 +330,13 @@ class Entity
                 $this->ceidg = $this->register->nr;
             }
 
-            $this->regon  = $oData->fiz_regon9 ?? $oData->praw_regon14 ?? $oData->lokpraw_regon14 ?? $oData->lokfiz_regon14 ?? null;
+            $this->regon = $oData->fiz_regon9 ?? $oData->praw_regon14 ?? $oData->lokpraw_regon14 ?? $oData->lokfiz_regon14 ?? null;
+            /**
+             * returned regon 47304027200000 is invalid, need to cut leading zeros
+             */
+            if (substr($this->regon, 9, 5) === '00000') {
+                $this->regon = substr($this->regon, 0, 9);
+            }
             $this->regon9 = substr($this->regon, 0, 9);
 
             $this->isActive = $this->history->isActive();
