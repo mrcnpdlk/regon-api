@@ -88,7 +88,7 @@ class SearchResult
         /** @noinspection PhpUndefinedFieldInspection */
         $this->communeName = $element->Gmina ?? null;
         /** @noinspection PhpUndefinedFieldInspection */
-        $this->cityName = $element->Miejscowosc;
+        $this->cityName = $element->Miejscowosc ?? null;
         /** @noinspection PhpUndefinedFieldInspection */
         $this->postalCode = $element->KodPocztowy ?? null;
         /** @noinspection PhpUndefinedFieldInspection */
