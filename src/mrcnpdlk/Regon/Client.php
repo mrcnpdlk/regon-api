@@ -12,6 +12,7 @@
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
+declare (strict_types=1);
 
 namespace mrcnpdlk\Regon;
 
@@ -40,7 +41,6 @@ class Client
      * @var \Psr\Log\LoggerInterface
      */
     private $oLogger;
-
     /**
      * Session ID
      *
@@ -77,6 +77,199 @@ class Client
     }
 
     /**
+     * Destructor
+     * Closing session
+     */
+    public function __destruct()
+    {
+        $this->logout();
+    }
+
+    /**
+     * @param string $methodName
+     *
+     * @return string Action Url
+     */
+    private function getActionUrl(string $methodName)
+    {
+        switch ($methodName) {
+            case 'GetValue':
+            case 'PobierzCaptcha':
+            case 'SprawdzCaptcha':
+                $prefix = 'http://CIS/BIR/2014/07/IUslugaBIR';
+                break;
+            default:
+                $prefix = 'http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl';
+                break;
+        }
+
+        return sprintf('%s/%s', $prefix, $methodName);
+    }
+
+    /**
+     * @return CacheInterface
+     */
+    public function getCache()
+    {
+        return $this->oCache;
+    }
+
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->oLogger;
+    }
+
+    /**
+     * @return \mrcnpdlk\Regon\RegonSoapClient
+     * @throws \Exception
+     */
+    private function getSoap()
+    {
+        try {
+            if (!$this->soapClient) {
+                $this->reinitSoap();
+            }
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
+        return $this->soapClient;
+    }
+
+    /**
+     * Check if session exists
+     *
+     * @return boolean
+     */
+    public function isLogged()
+    {
+        $res = $this->request('GetValue',
+            [
+                'pNazwaParametru' => 'StatusSesji',
+            ],
+            true);
+
+        return $res === '1';
+    }
+
+    /**
+     * @return $this
+     * @throws Exception
+     */
+    public function login()
+    {
+        $res = $this->request('Zaloguj',
+            [
+                'pKluczUzytkownika' => $this->wsdlKey,
+            ],
+            false);
+        if (empty($res)) {
+            throw new Exception('Invalid UserKey');
+        }
+        $this->sid = $res;
+
+        return $this;
+    }
+
+    /**
+     * Logout from GUS
+     *
+     * @return $this
+     */
+    public function logout()
+    {
+        $res       = $this->request('Wyloguj',
+            [
+                'pIdentyfikatorSesji' => $this->sid,
+            ],
+            false);
+        $this->sid = $res;
+
+        return $this;
+    }
+
+    /**
+     * @param      $action
+     *
+     * @param bool $addSid
+     *
+     * @return Client
+     * @internal param null $sid
+     */
+    private function prepareSoapHeader($action, bool $addSid = true)
+    {
+        $header   = [];
+        $header[] = new \SoapHeader('http://www.w3.org/2005/08/addressing', 'Action', $action);
+        $header[] = new \SoapHeader('http://www.w3.org/2005/08/addressing', 'To', $this->wsdlSvc);
+        $this->getSoap()->__setSoapHeaders($header);
+        if ($this->sid && $addSid) {
+            $this->getSoap()->__setHttpHeader([
+                'header' => sprintf('sid: %s', $this->sid),
+            ])
+            ;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Reinit Soap Client
+     *
+     * @return $this
+     * @throws \Exception
+     */
+    private function reinitSoap()
+    {
+        try {
+            $this->soapClient = new RegonSoapClient($this->wsdlXsd, $this->wsdlSvc, [
+                'soap_version' => \SOAP_1_2,
+                'trace'        => true,
+                'style'        => \SOAP_DOCUMENT,
+            ]);
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Setting request
+     *
+     * @param string $methodName
+     * @param array  $args
+     * @param bool   $addSid
+     *
+     * @return mixed
+     */
+    public function request(string $methodName, array $args = [], bool $addSid = true)
+    {
+        $this->prepareSoapHeader($this->getActionUrl($methodName), $addSid);
+        $this->oLogger->debug($methodName, $args);
+        $res = $this->getSoap()->__soapCall($methodName, [$args]);
+
+        return $res->{sprintf('%sResult', $methodName)};
+    }
+
+    /**
+     * Set Cache handler (PSR-16)
+     *
+     * @param CacheInterface|null $oCache
+     *
+     * @return \mrcnpdlk\Regon\Client
+     * @see https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-16-simple-cache.md PSR-16
+     */
+    public function setCacheInstance(CacheInterface $oCache = null)
+    {
+        $this->oCache = $oCache;
+
+        return $this;
+    }
+
+    /**
      * Set Regon config
      *
      * @param string|null $key User key
@@ -106,190 +299,6 @@ class Client
         $this->oLogger = $oLogger ?: new NullLogger();
 
         return $this;
-    }
-
-    /**
-     * Set Cache handler (PSR-16)
-     *
-     * @param CacheInterface|null $oCache
-     *
-     * @return \mrcnpdlk\Regon\Client
-     * @see https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-16-simple-cache.md PSR-16
-     */
-    public function setCacheInstance(CacheInterface $oCache = null)
-    {
-        $this->oCache = $oCache;
-
-        return $this;
-    }
-
-    /**
-     * Destructor
-     * Closing session
-     */
-    public function __destruct()
-    {
-        $this->logout();
-    }
-
-    /**
-     * Logout from GUS
-     *
-     * @return $this
-     */
-    public function logout()
-    {
-        $res       = $this->request('Wyloguj',
-            [
-                'pIdentyfikatorSesji' => $this->sid,
-            ],
-            false);
-        $this->sid = $res;
-
-        return $this;
-    }
-
-    public function request(string $methodName, array $args = [], bool $addSid = true)
-    {
-        $this->prepareSoapHeader($this->getActionUrl($methodName), $addSid);
-        $this->oLogger->debug($methodName, $args);
-        $res = $this->getSoap()->__soapCall($methodName, [$args]);
-
-        return $res->{sprintf('%sResult', $methodName)};
-    }
-
-    /**
-     * @param      $action
-     *
-     * @param bool $addSid
-     *
-     * @return Client
-     * @internal param null $sid
-     */
-    private function prepareSoapHeader($action, bool $addSid = true)
-    {
-        $header   = [];
-        $header[] = new \SoapHeader('http://www.w3.org/2005/08/addressing', 'Action', $action);
-        $header[] = new \SoapHeader('http://www.w3.org/2005/08/addressing', 'To', $this->wsdlSvc);
-        $this->getSoap()->__setSoapHeaders($header);
-        if ($this->sid && $addSid) {
-            $this->getSoap()->__setHttpHeader([
-                'header' => sprintf('sid: %s', $this->sid),
-            ])
-            ;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return \mrcnpdlk\Regon\RegonSoapClient
-     * @throws \Exception
-     */
-    private function getSoap()
-    {
-        try {
-            if (!$this->soapClient) {
-                $this->reinitSoap();
-            }
-        } catch (\Exception $e) {
-            throw $e;
-        }
-
-        return $this->soapClient;
-    }
-
-    /**
-     * Reinit Soap Client
-     *
-     * @return $this
-     * @throws \Exception
-     */
-    private function reinitSoap()
-    {
-        try {
-            $this->soapClient = new RegonSoapClient($this->wsdlXsd, $this->wsdlSvc, [
-                'soap_version' => \SOAP_1_2,
-                'trace'        => true,
-                'style'        => \SOAP_DOCUMENT,
-            ]);
-        } catch (\Exception $e) {
-            throw $e;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param string $methodName
-     *
-     * @return string Action Url
-     */
-    private function getActionUrl(string $methodName)
-    {
-        switch ($methodName) {
-            case 'GetValue':
-            case 'PobierzCaptcha':
-            case 'SprawdzCaptcha':
-                $prefix = 'http://CIS/BIR/2014/07/IUslugaBIR';
-                break;
-            default:
-                $prefix = 'http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl';
-                break;
-        }
-
-        return sprintf('%s/%s', $prefix, $methodName);
-    }
-
-    /**
-     * @return $this
-     * @throws Exception
-     */
-    public function login()
-    {
-        $res = $this->request('Zaloguj',
-            [
-                'pKluczUzytkownika' => $this->wsdlKey,
-            ],
-            false);
-        if (empty($res)) {
-            throw new Exception('Invalid UserKey');
-        }
-        $this->sid = $res;
-
-        return $this;
-    }
-
-    /**
-     * Check if session exists
-     *
-     * @return boolean
-     */
-    public function isLogged()
-    {
-        $res = $this->request('GetValue',
-            [
-                'pNazwaParametru' => 'StatusSesji',
-            ],
-            true);
-
-        return $res === '1';
-    }
-
-    /**
-     * @return CacheInterface
-     */
-    public function getCache()
-    {
-        return $this->oCache;
-    }
-
-    /**
-     * @return LoggerInterface
-     */
-    public function getLogger()
-    {
-        return $this->oLogger;
     }
 
 }
