@@ -2,7 +2,7 @@
 /**
  * REGON-API
  *
- * Copyright (c) 2017 pudelek.org.pl
+ * Copyright (c) 2019 pudelek.org.pl
  *
  * @license MIT License (MIT)
  *
@@ -32,7 +32,7 @@ class Client
     /**
      * Cache handler
      *
-     * @var \Psr\SimpleCache\CacheInterface
+     * @var \Psr\SimpleCache\CacheInterface|null
      */
     private $oCache;
     /**
@@ -79,6 +79,8 @@ class Client
     /**
      * Destructor
      * Closing session
+     *
+     * @throws \Exception
      */
     public function __destruct()
     {
@@ -86,30 +88,9 @@ class Client
     }
 
     /**
-     * @param string $methodName
-     *
-     * @return string Action Url
+     * @return CacheInterface|null
      */
-    private function getActionUrl(string $methodName)
-    {
-        switch ($methodName) {
-            case 'GetValue':
-            case 'PobierzCaptcha':
-            case 'SprawdzCaptcha':
-                $prefix = 'http://CIS/BIR/2014/07/IUslugaBIR';
-                break;
-            default:
-                $prefix = 'http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl';
-                break;
-        }
-
-        return sprintf('%s/%s', $prefix, $methodName);
-    }
-
-    /**
-     * @return CacheInterface
-     */
-    public function getCache()
+    public function getCache(): ?CacheInterface
     {
         return $this->oCache;
     }
@@ -117,34 +98,18 @@ class Client
     /**
      * @return LoggerInterface
      */
-    public function getLogger()
+    public function getLogger(): LoggerInterface
     {
         return $this->oLogger;
-    }
-
-    /**
-     * @return \mrcnpdlk\Regon\RegonSoapClient
-     * @throws \Exception
-     */
-    private function getSoap()
-    {
-        try {
-            if (!$this->soapClient) {
-                $this->reinitSoap();
-            }
-        } catch (\Exception $e) {
-            throw $e;
-        }
-
-        return $this->soapClient;
     }
 
     /**
      * Check if session exists
      *
      * @return boolean
+     * @throws \Exception
      */
-    public function isLogged()
+    public function isLogged(): bool
     {
         $res = $this->request('GetValue',
             [
@@ -158,8 +123,9 @@ class Client
     /**
      * @return $this
      * @throws Exception
+     * @throws \Exception
      */
-    public function login()
+    public function login(): self
     {
         $res = $this->request('Zaloguj',
             [
@@ -178,8 +144,9 @@ class Client
      * Logout from GUS
      *
      * @return $this
+     * @throws \Exception
      */
-    public function logout()
+    public function logout(): self
     {
         $res       = $this->request('Wyloguj',
             [
@@ -192,14 +159,119 @@ class Client
     }
 
     /**
+     * Setting request
+     *
+     * @param string $methodName
+     * @param array  $args
+     * @param bool   $addSid
+     *
+     * @return mixed
+     * @throws \Exception
+     */
+    public function request(string $methodName, array $args = [], bool $addSid = true)
+    {
+        $this->prepareSoapHeader($this->getActionUrl($methodName), $addSid);
+        $this->oLogger->debug($methodName, $args);
+        $res = $this->getSoap()->__soapCall($methodName, [$args]);
+
+        return $res->{sprintf('%sResult', $methodName)};
+    }
+
+    /**
+     * Set Cache handler (PSR-16)
+     *
+     * @param CacheInterface|null $oCache
+     *
+     * @return \mrcnpdlk\Regon\Client
+     * @see https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-16-simple-cache.md PSR-16
+     */
+    public function setCacheInstance(CacheInterface $oCache = null): ?Client
+    {
+        $this->oCache = $oCache;
+
+        return $this;
+    }
+
+    /**
+     * Set Regon config
+     *
+     * @param string|null $key User key
+     * @param bool        $isProduction
+     *
+     * @return $this
+     */
+    public function setConfig(string $key = null, bool $isProduction = false): self
+    {
+        $this->wsdlSvc = $isProduction ? Enum\Connection::BASE_WSDL_SVC : Enum\Connection::BASE_WSDL_SVC_TEST;
+        $this->wsdlXsd = $isProduction ? Enum\Connection::BASE_WSDL_XSD : Enum\Connection::BASE_WSDL_XSD_TEST;
+        $this->wsdlKey = $key ?? Enum\Connection::BASE_WSDL_TEST_KEY;
+
+        return $this;
+
+    }
+
+    /**
+     * Set Logger handler (PSR-3)
+     *
+     * @param LoggerInterface|null $oLogger
+     *
+     * @return $this
+     */
+    public function setLoggerInstance(LoggerInterface $oLogger = null): self
+    {
+        $this->oLogger = $oLogger ?: new NullLogger();
+
+        return $this;
+    }
+
+    /**
+     * @param string $methodName
+     *
+     * @return string Action Url
+     */
+    private function getActionUrl(string $methodName): string
+    {
+        switch ($methodName) {
+            case 'GetValue':
+            case 'PobierzCaptcha':
+            case 'SprawdzCaptcha':
+                $prefix = 'http://CIS/BIR/2014/07/IUslugaBIR';
+                break;
+            default:
+                $prefix = 'http://CIS/BIR/PUBL/2014/07/IUslugaBIRzewnPubl';
+                break;
+        }
+
+        return sprintf('%s/%s', $prefix, $methodName);
+    }
+
+    /**
+     * @return \mrcnpdlk\Regon\RegonSoapClient
+     * @throws \Exception
+     */
+    private function getSoap(): RegonSoapClient
+    {
+        try {
+            if (!$this->soapClient) {
+                $this->reinitSoap();
+            }
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
+        return $this->soapClient;
+    }
+
+    /**
      * @param      $action
      *
      * @param bool $addSid
      *
      * @return Client
+     * @throws \Exception
      * @internal param null $sid
      */
-    private function prepareSoapHeader($action, bool $addSid = true)
+    private function prepareSoapHeader($action, bool $addSid = true): Client
     {
         $header   = [];
         $header[] = new \SoapHeader('http://www.w3.org/2005/08/addressing', 'Action', $action);
@@ -221,7 +293,7 @@ class Client
      * @return $this
      * @throws \Exception
      */
-    private function reinitSoap()
+    private function reinitSoap(): self
     {
         try {
             $this->soapClient = new RegonSoapClient($this->wsdlXsd, $this->wsdlSvc, [
@@ -232,71 +304,6 @@ class Client
         } catch (\Exception $e) {
             throw $e;
         }
-
-        return $this;
-    }
-
-    /**
-     * Setting request
-     *
-     * @param string $methodName
-     * @param array  $args
-     * @param bool   $addSid
-     *
-     * @return mixed
-     */
-    public function request(string $methodName, array $args = [], bool $addSid = true)
-    {
-        $this->prepareSoapHeader($this->getActionUrl($methodName), $addSid);
-        $this->oLogger->debug($methodName, $args);
-        $res = $this->getSoap()->__soapCall($methodName, [$args]);
-
-        return $res->{sprintf('%sResult', $methodName)};
-    }
-
-    /**
-     * Set Cache handler (PSR-16)
-     *
-     * @param CacheInterface|null $oCache
-     *
-     * @return \mrcnpdlk\Regon\Client
-     * @see https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-16-simple-cache.md PSR-16
-     */
-    public function setCacheInstance(CacheInterface $oCache = null)
-    {
-        $this->oCache = $oCache;
-
-        return $this;
-    }
-
-    /**
-     * Set Regon config
-     *
-     * @param string|null $key User key
-     * @param bool        $isProduction
-     *
-     * @return $this
-     */
-    public function setConfig(string $key = null, bool $isProduction = false)
-    {
-        $this->wsdlSvc = $isProduction ? Enum\Connection::BASE_WSDL_SVC : Enum\Connection::BASE_WSDL_SVC_TEST;
-        $this->wsdlXsd = $isProduction ? Enum\Connection::BASE_WSDL_XSD : Enum\Connection::BASE_WSDL_XSD_TEST;
-        $this->wsdlKey = $key ?? Enum\Connection::BASE_WSDL_TEST_KEY;
-
-        return $this;
-
-    }
-
-    /**
-     * Set Logger handler (PSR-3)
-     *
-     * @param LoggerInterface|null $oLogger
-     *
-     * @return $this
-     */
-    public function setLoggerInstance(LoggerInterface $oLogger = null)
-    {
-        $this->oLogger = $oLogger ?: new NullLogger();
 
         return $this;
     }

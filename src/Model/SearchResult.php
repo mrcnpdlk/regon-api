@@ -102,7 +102,7 @@ class SearchResult
     /**
      * @return string
      */
-    public function getTypeId()
+    public function getTypeId(): string
     {
         return $this->typeId;
     }
@@ -110,7 +110,7 @@ class SearchResult
     /**
      * @return string
      */
-    public function getSilosId()
+    public function getSilosId(): string
     {
         return $this->silosId;
     }

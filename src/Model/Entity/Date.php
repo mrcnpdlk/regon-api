@@ -54,12 +54,8 @@ class Date
     /**
      * @return bool
      */
-    public function isActive()
+    public function isActive(): bool
     {
-        if ($this->close || $this->delete) {
-            return false;
-        } else {
-            return true;
-        }
+        return !($this->close || $this->delete);
     }
 }

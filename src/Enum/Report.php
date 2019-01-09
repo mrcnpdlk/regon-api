@@ -17,22 +17,22 @@ namespace mrcnpdlk\Regon\Enum;
 
 class Report
 {
-    const REPORT_ACTIVITY_PHYSIC_PERSON = 'PublDaneRaportFizycznaOsoba';
-    const REPORT_ACTIVITY_PHYSIC_CEIDG  = 'PublDaneRaportDzialalnoscFizycznejCeidg';
-    const REPORT_ACTIVITY_PHYSIC_AGRO   = 'PublDaneRaportDzialalnoscFizycznejRolnicza';
-    const REPORT_ACTIVITY_PHYSIC_OTHER  = 'PublDaneRaportDzialalnoscFizycznejPozostala';
-    const REPORT_ACTIVITY_PHYSIC_KRUPGN = 'PublDaneRaportDzialalnoscFizycznejWKrupgn';
+    public const REPORT_ACTIVITY_PHYSIC_PERSON = 'PublDaneRaportFizycznaOsoba';
+    public const REPORT_ACTIVITY_PHYSIC_CEIDG  = 'PublDaneRaportDzialalnoscFizycznejCeidg';
+    public const REPORT_ACTIVITY_PHYSIC_AGRO   = 'PublDaneRaportDzialalnoscFizycznejRolnicza';
+    public const REPORT_ACTIVITY_PHYSIC_OTHER  = 'PublDaneRaportDzialalnoscFizycznejPozostala';
+    public const REPORT_ACTIVITY_PHYSIC_KRUPGN = 'PublDaneRaportDzialalnoscFizycznejWKrupgn';
 
-    const REPORT_ACTIVITY_LOCAL_PHYSIC = 'PublDaneRaportDzialalnosciLokalnejFizycznej';
-    const REPORT_ACTIVITY_PHYSIC       = 'PublDaneRaportDzialalnosciFizycznej';
-    const REPORT_ACTIVITY_LAW          = 'PublDaneRaportDzialalnosciPrawnej';
-    const REPORT_ACTIVITY_LOCAL_LAW    = 'PublDaneRaportDzialalnosciLokalnejPrawnej';
+    public const REPORT_ACTIVITY_LOCAL_PHYSIC = 'PublDaneRaportDzialalnosciLokalnejFizycznej';
+    public const REPORT_ACTIVITY_PHYSIC       = 'PublDaneRaportDzialalnosciFizycznej';
+    public const REPORT_ACTIVITY_LAW          = 'PublDaneRaportDzialalnosciPrawnej';
+    public const REPORT_ACTIVITY_LOCAL_LAW    = 'PublDaneRaportDzialalnosciLokalnejPrawnej';
 
-    const REPORT_LOCALS_PHYSIC = 'PublDaneRaportLokalneFizycznej';
-    const REPORT_LOCALS_LAW    = 'PublDaneRaportLokalnePrawnej';
-    const REPORT_LOCAL_PHYSIC  = 'PublDaneRaportLokalnaFizycznej';
-    const REPORT_LOCAL_LAW     = 'PublDaneRaportLokalnaPrawnej';
-    const REPORT_PUBLIC_LAW    = 'PublDaneRaportPrawna';
-    const REPORT_COMMON_LAW    = 'PublDaneRaportWspolnicyPrawnej';
-    const REPORT_UNIT_TYPE     = 'PublDaneRaportTypJednostki';
+    public const REPORT_LOCALS_PHYSIC = 'PublDaneRaportLokalneFizycznej';
+    public const REPORT_LOCALS_LAW    = 'PublDaneRaportLokalnePrawnej';
+    public const REPORT_LOCAL_PHYSIC  = 'PublDaneRaportLokalnaFizycznej';
+    public const REPORT_LOCAL_LAW     = 'PublDaneRaportLokalnaPrawnej';
+    public const REPORT_PUBLIC_LAW    = 'PublDaneRaportPrawna';
+    public const REPORT_COMMON_LAW    = 'PublDaneRaportWspolnicyPrawnej';
+    public const REPORT_UNIT_TYPE     = 'PublDaneRaportTypJednostki';
 }

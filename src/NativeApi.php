@@ -2,7 +2,7 @@
 /**
  * REGON-API
  *
- * Copyright (c) 2017 pudelek.org.pl
+ * Copyright (c) 2019 pudelek.org.pl
  *
  * @license MIT License (MIT)
  *
@@ -30,13 +30,20 @@ final class NativeApi
     /**
      * @var \mrcnpdlk\Regon\NativeApi
      */
-    protected static $instance = null;
+    private static $instance = null;
     /**
      * @var Client
      */
     private $oClient;
 
-    protected function __construct(Client $oClient)
+    /**
+     * NativeApi constructor.
+     *
+     * @param \mrcnpdlk\Regon\Client $oClient
+     *
+     * @throws \mrcnpdlk\Regon\Exception
+     */
+    private function __construct(Client $oClient)
     {
         $this->oClient = $oClient;
         $this->oClient->login();
@@ -46,8 +53,9 @@ final class NativeApi
      * @param \mrcnpdlk\Regon\Client $oClient
      *
      * @return \mrcnpdlk\Regon\NativeApi
+     * @throws \mrcnpdlk\Regon\Exception
      */
-    public static function create(Client $oClient)
+    public static function create(Client $oClient): NativeApi
     {
         if (!isset(static::$instance)) {
             static::$instance = new static($oClient);
@@ -60,7 +68,7 @@ final class NativeApi
      * @return \mrcnpdlk\Regon\NativeApi
      * @throws \mrcnpdlk\Regon\Exception
      */
-    public static function getInstance()
+    public static function getInstance(): NativeApi
     {
         if (!isset(static::$instance)) {
             throw new Exception(sprintf('First call CREATE method!'));
@@ -74,8 +82,9 @@ final class NativeApi
      * @param string $reportName
      *
      * @return \stdClass[]
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
-    public function DanePobierzPelnyRaport(string $regon, string $reportName)
+    public function DanePobierzPelnyRaport(string $regon, string $reportName): array
     {
         $hashKey = md5(json_encode([__METHOD__, $regon, $reportName]));
         $self    = $this;
@@ -102,6 +111,8 @@ final class NativeApi
      * @param array       $tKrs
      *
      * @return \stdClass[]
+     * @throws \mrcnpdlk\Regon\Exception\InvalidResponse
+     * @throws \Exception
      */
     public function DaneSzukaj(
         string $regon = null,
@@ -110,7 +121,7 @@ final class NativeApi
         array $tRegon = [],
         array $tNip = [],
         array $tKrs = []
-    ) {
+    ): array {
         $sRegon9zn  = null;
         $sRegon14zn = null;
         $tRegon9zn  = [];
@@ -148,6 +159,7 @@ final class NativeApi
      * @param string $valueName
      *
      * @return mixed
+     * @throws \Exception
      */
     public function GetValue(string $valueName)
     {
@@ -165,8 +177,9 @@ final class NativeApi
      * Logout
      *
      * @return $this
+     * @throws \Exception
      */
-    public function Wyloguj()
+    public function Wyloguj(): self
     {
         $this->oClient->logout();
 
@@ -177,22 +190,26 @@ final class NativeApi
      * Login
      *
      * @return $this
+     * @throws \mrcnpdlk\Regon\Exception
      */
-    public function Zaloguj()
+    public function Zaloguj(): self
     {
         $this->oClient->login();
 
         return $this;
     }
 
-    protected function __clone()
-    {
-        //Me not like clones! Me smash clones!
-    }
-
+    /**
+     * @throws \mrcnpdlk\Regon\Exception
+     */
     public function __wakeup()
     {
-        throw new Exception("Cannot unserialize singleton");
+        throw new Exception('Cannot unserialize singleton');
+    }
+
+    private function __clone()
+    {
+        //Me not like clones! Me smash clones!
     }
 
     /**
@@ -200,14 +217,17 @@ final class NativeApi
      *
      * @return \stdClass[]
      * @throws Exception\InvalidResponse
+     * @throws \Exception
      */
-    private function decodeResponse(string $response)
+    private function decodeResponse(string $response): array
     {
         $answer = [];
-        $code   = intval($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE_CODE));
+        $code   = (int)$this->GetValue(Connection::PARAM_GETVALUE_MESSAGE_CODE);
         if ($code) {
             throw new NotFound($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE), $code);
-        } elseif ($code) {
+        }
+
+        if ($code) {
             throw new InvalidResponse($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE), $code);
         }
 
@@ -223,6 +243,7 @@ final class NativeApi
                     $item->$key = null;
                 }
             }
+            unset($value);
             $answer[] = $item;
         }
 
@@ -237,6 +258,7 @@ final class NativeApi
      * @param int|null $ttl     Time to live for item
      *
      * @return mixed
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     private function useCache(\Closure $closure, string $hashKey, int $ttl = null)
     {

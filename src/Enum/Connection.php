@@ -23,17 +23,17 @@ namespace mrcnpdlk\Regon\Enum;
 
 class Connection
 {
-    const BASE_WSDL_XSD_TEST = 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/wsdl/UslugaBIRzewnPubl.xsd';
-    const BASE_WSDL_SVC_TEST = 'https://Wyszukiwarkaregontest.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc';
-    const BASE_WSDL_XSD      = 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/wsdl/UslugaBIRzewnPubl.xsd'; //taki sam jak do testowego
-    const BASE_WSDL_SVC      = 'https://wyszukiwarkaregon.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc';
-    const BASE_WSDL_TEST_KEY = 'abcde12345abcde12345';
+    public const BASE_WSDL_XSD_TEST = 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/wsdl/UslugaBIRzewnPubl.xsd';
+    public const BASE_WSDL_SVC_TEST = 'https://Wyszukiwarkaregontest.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc';
+    public const BASE_WSDL_XSD      = 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/wsdl/UslugaBIRzewnPubl.xsd'; //taki sam jak do testowego
+    public const BASE_WSDL_SVC      = 'https://wyszukiwarkaregon.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc';
+    public const BASE_WSDL_TEST_KEY = 'abcde12345abcde12345';
 
 
-    const PARAM_GETVALUE_STATUS_DATE_STATE = 'StanDanych';
-    const PARAM_GETVALUE_MESSAGE_CODE      = 'KomunikatKod';
-    const PARAM_GETVALUE_MESSAGE           = 'KomunikatTresc';
-    const PARAM_GETVALUE_SESSION_STATUS    = 'StatusSesji';
-    const PARAM_GETVALUE_SERVICE_STATUS    = 'StatusUslugi';
-    const PARAM_GETVALUE_SERVICE_MESSAGE   = 'KomunikatUslugi';
+    public const PARAM_GETVALUE_STATUS_DATE_STATE = 'StanDanych';
+    public const PARAM_GETVALUE_MESSAGE_CODE      = 'KomunikatKod';
+    public const PARAM_GETVALUE_MESSAGE           = 'KomunikatTresc';
+    public const PARAM_GETVALUE_SESSION_STATUS    = 'StatusSesji';
+    public const PARAM_GETVALUE_SERVICE_STATUS    = 'StatusUslugi';
+    public const PARAM_GETVALUE_SERVICE_MESSAGE   = 'KomunikatUslugi';
 }

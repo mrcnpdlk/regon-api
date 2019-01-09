@@ -23,7 +23,9 @@
     "php": ">=7.2",
     "ext-soap": "*",
     "psr/log": "^1",
-    "psr/simple-cache": "^1"
+    "psr/simple-cache": "^1",
+    "ext-json": "*",
+    "ext-simplexml": "*"
   },
   "require-dev": {
     "monolog/monolog": "^1",

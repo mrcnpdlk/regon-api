@@ -2,14 +2,14 @@
 /**
  * REGON-API
  *
- * Copyright (c) 2017 pudelek.org.pl
+ * Copyright (c) 2019 pudelek.org.pl
  *
  * @license MIT License (MIT)
  *
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
  *
- * @author  Marcin Pudełek <marcin@pudelek.org.pl>
+ * @author Marcin Pudełek <marcin@pudelek.org.pl>
  */
 declare (strict_types=1);
 
@@ -60,11 +60,11 @@ class RegonSoapClient extends \SoapClient
      *
      * @return string response
      */
-    public function __doRequest($request, $location, $action, $version, $oneWay = 0)
+    public function __doRequest($request, $location, $action, $version, $oneWay = 0): string
     {
         $location = $this->location;
         $response = parent::__doRequest($request, $location, $action, $version, $oneWay);
-        $response = stristr(stristr($response, "<s:"), "</s:Envelope>", true) . "</s:Envelope>";
+        $response = stristr(stristr($response, '<s:'), '</s:Envelope>', true) . '</s:Envelope>';
 
         return $response;
     }
@@ -74,7 +74,7 @@ class RegonSoapClient extends \SoapClient
      *
      * @param array $header array of headers
      */
-    public function __setHttpHeader(array $header)
+    public function __setHttpHeader(array $header): void
     {
         $this->setContextOption([
             'http' => $header,
@@ -86,7 +86,7 @@ class RegonSoapClient extends \SoapClient
      *
      * @return string
      */
-    public function getLocation()
+    public function getLocation(): string
     {
         return $this->location;
     }
@@ -96,7 +96,7 @@ class RegonSoapClient extends \SoapClient
      *
      * @param array $option
      */
-    private function setContextOption(array $option)
+    private function setContextOption(array $option): void
     {
         stream_context_set_option($this->context, $option);
     }
@@ -106,7 +106,7 @@ class RegonSoapClient extends \SoapClient
      *
      * @param string $location
      */
-    public function setLocation($location)
+    public function setLocation($location): void
     {
         $this->location = $location;
     }
