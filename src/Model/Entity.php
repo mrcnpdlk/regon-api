@@ -324,7 +324,7 @@ class Entity
 
             $this->nip = $oData->praw_nip ?? $oData->lokpraw_nip ?? null;
 
-            if (in_array($this->register->typeId ?? null, ['138', '139'])) {
+            if (in_array($this->register->typeId ?? null, ['138', '139'], true)) {
                 $this->krs = $this->register->nr;
             } elseif (in_array($this->register->typeId ?? null, ['151'])) {
                 $this->ceidg = $this->register->nr;

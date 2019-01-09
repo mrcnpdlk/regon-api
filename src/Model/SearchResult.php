@@ -86,11 +86,11 @@ class SearchResult
         /** @noinspection PhpUndefinedFieldInspection */
         $this->districtName = $element->Powiat;
         /** @noinspection PhpUndefinedFieldInspection */
-        $this->communeName = $element->Gmina;
+        $this->communeName = $element->Gmina ?? null;
         /** @noinspection PhpUndefinedFieldInspection */
-        $this->cityName = $element->Miejscowosc;
+        $this->cityName = $element->Miejscowosc ?? null;
         /** @noinspection PhpUndefinedFieldInspection */
-        $this->postalCode = $element->KodPocztowy;
+        $this->postalCode = $element->KodPocztowy ?? null;
         /** @noinspection PhpUndefinedFieldInspection */
         $this->streetName = $element->Ulica ?? null;
         /** @noinspection PhpUndefinedFieldInspection */
@@ -102,7 +102,7 @@ class SearchResult
     /**
      * @return string
      */
-    public function getTypeId()
+    public function getTypeId(): string
     {
         return $this->typeId;
     }
@@ -110,7 +110,7 @@ class SearchResult
     /**
      * @return string
      */
-    public function getSilosId()
+    public function getSilosId(): string
     {
         return $this->silosId;
     }
