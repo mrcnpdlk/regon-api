@@ -22,14 +22,14 @@
   "require": {
     "php": ">=7.0",
     "ext-soap": "*",
-    "psr/log": "1.0.2",
-    "psr/simple-cache": "1.0.0"
+    "psr/log": "^1",
+    "psr/simple-cache": "^1"
   },
   "require-dev": {
-    "monolog/monolog": "^1.23",
+    "monolog/monolog": "^1",
     "phpfastcache/phpfastcache": "~6.0",
-    "phpunit/phpunit": "~6.3",
-    "mockery/mockery": "~0",
+    "phpunit/phpunit": "^7",
+    "mockery/mockery": "^1",
     "phpdocumentor/phpdocumentor": "2.*",
     "cvuorinen/phpdoc-markdown-public": "*"
   },
