@@ -11,6 +11,7 @@
  *
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
+declare (strict_types=1);
 
 namespace mrcnpdlk\Regon;
 
@@ -93,85 +94,6 @@ final class NativeApi
     }
 
     /**
-     * Caching things
-     *
-     * @param \Closure $closure Function calling wheen cache is empty or not valid
-     * @param mixed    $hashKey Cache key of item
-     * @param int|null $ttl     Time to live for item
-     *
-     * @return mixed
-     */
-    private function useCache(\Closure $closure, string $hashKey, int $ttl = null)
-    {
-        if ($this->oClient->getCache()) {
-            if ($this->oClient->getCache()->has($hashKey)) {
-                $answer = $this->oClient->getCache()->get($hashKey);
-                $this->oClient->getLogger()->debug(sprintf('CACHE [%s]: geting from cache', $hashKey));
-            } else {
-                $answer = $closure();
-                $this->oClient->getCache()->set($hashKey, $answer, $ttl);
-                $this->oClient->getLogger()->debug(sprintf('CACHE [%s]: old, reset', $hashKey));
-            }
-        } else {
-            $this->oClient->getLogger()->debug(sprintf('CACHE [%s]: no implemented', $hashKey));
-            $answer = $closure();
-        }
-
-        return $answer;
-    }
-
-    /**
-     * @param string $response xml string
-     *
-     * @return \stdClass[]
-     * @throws Exception\InvalidResponse
-     */
-    private function decodeResponse(string $response)
-    {
-        $answer = [];
-        $code   = intval($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE_CODE));
-        if ($code) {
-            throw new NotFound($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE), $code);
-        } elseif ($code) {
-            throw new InvalidResponse($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE), $code);
-        }
-
-        $res = new \SimpleXMLElement($response);
-
-        foreach ($res->children() as $child) {
-            $item = json_decode(json_encode($child));
-            //clearing data - empty object as NULL
-            foreach (get_object_vars($item) as $key => &$value) {
-                $item->$key = empty((array)$value) ? null : (is_string($value) ? trim($value) : $value);
-                //fix - czasem nip byl jako pusty \sdtClass
-                if (is_object($item->$key)) {
-                    $item->$key = null;
-                }
-            }
-            $answer[] = $item;
-        }
-
-        return $answer;
-    }
-
-    /**
-     * @param string $valueName
-     *
-     * @return mixed
-     */
-    public function GetValue(string $valueName)
-    {
-        $res = $this->oClient->request('GetValue',
-            [
-                'pNazwaParametru' => $valueName,
-            ],
-            true
-        );
-
-        return $res;
-    }
-
-    /**
      * @param string|null $regon Regon
      * @param string|null $nip   NIP
      * @param string|null $krs   KRS
@@ -223,15 +145,20 @@ final class NativeApi
     }
 
     /**
-     * Login
+     * @param string $valueName
      *
-     * @return $this
+     * @return mixed
      */
-    public function Zaloguj()
+    public function GetValue(string $valueName)
     {
-        $this->oClient->login();
+        $res = $this->oClient->request('GetValue',
+            [
+                'pNazwaParametru' => $valueName,
+            ],
+            true
+        );
 
-        return $this;
+        return $res;
     }
 
     /**
@@ -246,14 +173,88 @@ final class NativeApi
         return $this;
     }
 
-    public function __wakeup()
+    /**
+     * Login
+     *
+     * @return $this
+     */
+    public function Zaloguj()
     {
-        throw new Exception("Cannot unserialize singleton");
+        $this->oClient->login();
+
+        return $this;
     }
 
     protected function __clone()
     {
         //Me not like clones! Me smash clones!
+    }
+
+    public function __wakeup()
+    {
+        throw new Exception("Cannot unserialize singleton");
+    }
+
+    /**
+     * @param string $response xml string
+     *
+     * @return \stdClass[]
+     * @throws Exception\InvalidResponse
+     */
+    private function decodeResponse(string $response)
+    {
+        $answer = [];
+        $code   = intval($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE_CODE));
+        if ($code) {
+            throw new NotFound($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE), $code);
+        } elseif ($code) {
+            throw new InvalidResponse($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE), $code);
+        }
+
+        $res = new \SimpleXMLElement($response);
+
+        foreach ($res->children() as $child) {
+            $item = json_decode(json_encode($child));
+            //clearing data - empty object as NULL
+            foreach (get_object_vars($item) as $key => &$value) {
+                $item->$key = empty((array)$value) ? null : (is_string($value) ? trim($value) : $value);
+                //fix - czasem nip byl jako pusty \sdtClass
+                if (is_object($item->$key)) {
+                    $item->$key = null;
+                }
+            }
+            $answer[] = $item;
+        }
+
+        return $answer;
+    }
+
+    /**
+     * Caching things
+     *
+     * @param \Closure $closure Function calling wheen cache is empty or not valid
+     * @param mixed    $hashKey Cache key of item
+     * @param int|null $ttl     Time to live for item
+     *
+     * @return mixed
+     */
+    private function useCache(\Closure $closure, string $hashKey, int $ttl = null)
+    {
+        if ($this->oClient->getCache()) {
+            if ($this->oClient->getCache()->has($hashKey)) {
+                $answer = $this->oClient->getCache()->get($hashKey);
+                $this->oClient->getLogger()->debug(sprintf('CACHE [%s]: geting from cache', $hashKey));
+            } else {
+                $answer = $closure();
+                $this->oClient->getCache()->set($hashKey, $answer, $ttl);
+                $this->oClient->getLogger()->debug(sprintf('CACHE [%s]: old, reset', $hashKey));
+            }
+        } else {
+            $this->oClient->getLogger()->debug(sprintf('CACHE [%s]: no implemented', $hashKey));
+            $answer = $closure();
+        }
+
+        return $answer;
     }
 
 }

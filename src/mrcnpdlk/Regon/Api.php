@@ -11,6 +11,7 @@
  *
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
+declare (strict_types=1);
 
 namespace mrcnpdlk\Regon;
 
@@ -44,18 +45,6 @@ class Api
     }
 
     /**
-     * @param string $nip
-     *
-     * @return SearchResult
-     */
-    public function getByNip(string $nip)
-    {
-        $tList = $this->oNativeApi->DaneSzukaj(null, $nip);
-
-        return new SearchResult($tList[0]);
-    }
-
-    /**
      * @param string $krs
      *
      * @return SearchResult
@@ -68,19 +57,67 @@ class Api
     }
 
     /**
-     * Getting current date of GUS database
+     * @param string $nip
      *
-     * @return null|string Date in format YYYY-MM-DD
+     * @return SearchResult
      */
-    public function getServiceStatus()
+    public function getByNip(string $nip)
     {
-        $res = $this->oNativeApi->GetValue('StanDanych');
+        $tList = $this->oNativeApi->DaneSzukaj(null, $nip);
 
-        if ($res) {
-            return (new \DateTime($res))->format('Y-m-d');
+        return new SearchResult($tList[0]);
+    }
+
+    /**
+     * @param string $regon
+     *
+     * @return SearchResult
+     */
+    public function getByRegon(string $regon)
+    {
+        $tList = $this->oNativeApi->DaneSzukaj($regon);
+
+        return new SearchResult($tList[0]);
+    }
+
+    /**
+     * @param string $regon
+     *
+     * @return string[]
+     */
+    private function getLocalsLaw(string $regon)
+    {
+        try {
+            $answer  = [];
+            $tLocals = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_LOCALS_LAW);
+            foreach ($tLocals as $local) {
+                $answer[] = $local->lokpraw_regon14;
+            }
+
+            return $answer;
+        } catch (NotFound $e) {
+            return [];
         }
+    }
 
-        return null;
+    /**
+     * @param string $regon
+     *
+     * @return string[]
+     */
+    private function getLocalsPhysic(string $regon)
+    {
+        try {
+            $answer  = [];
+            $tLocals = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_LOCALS_PHYSIC);
+            foreach ($tLocals as $local) {
+                $answer[] = $local->lokfiz_regon14;
+            }
+
+            return $answer;
+        } catch (NotFound $e) {
+            return [];
+        }
     }
 
     /**
@@ -123,18 +160,6 @@ class Api
     /**
      * @param string $regon
      *
-     * @return SearchResult
-     */
-    public function getByRegon(string $regon)
-    {
-        $tList = $this->oNativeApi->DaneSzukaj($regon);
-
-        return new SearchResult($tList[0]);
-    }
-
-    /**
-     * @param string $regon
-     *
      * @return Entity
      */
     private function getReportForLaw(string $regon)
@@ -149,21 +174,15 @@ class Api
     /**
      * @param string $regon
      *
-     * @return string[]
+     * @return Entity
      */
-    private function getLocalsLaw(string $regon)
+    private function getReportForLawLocal(string $regon)
     {
-        try {
-            $answer  = [];
-            $tLocals = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_LOCALS_LAW);
-            foreach ($tLocals as $local) {
-                $answer[] = $local->lokpraw_regon14;
-            }
+        $searchedItems = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_LOCAL_LAW);
+        $oData         = $searchedItems[0];
+        $oEntity       = new Entity($oData);
 
-            return $answer;
-        } catch (NotFound $e) {
-            return [];
-        }
+        return $oEntity;
     }
 
     /**
@@ -207,40 +226,6 @@ class Api
     /**
      * @param string $regon
      *
-     * @return string[]
-     */
-    private function getLocalsPhysic(string $regon)
-    {
-        try {
-            $answer  = [];
-            $tLocals = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_LOCALS_PHYSIC);
-            foreach ($tLocals as $local) {
-                $answer[] = $local->lokfiz_regon14;
-            }
-
-            return $answer;
-        } catch (NotFound $e) {
-            return [];
-        }
-    }
-
-    /**
-     * @param string $regon
-     *
-     * @return Entity
-     */
-    private function getReportForLawLocal(string $regon)
-    {
-        $searchedItems = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_LOCAL_LAW);
-        $oData         = $searchedItems[0];
-        $oEntity       = new Entity($oData);
-
-        return $oEntity;
-    }
-
-    /**
-     * @param string $regon
-     *
      * @return Entity
      */
     private function getReportForPhysicLocal(string $regon)
@@ -250,6 +235,22 @@ class Api
         $oEntity       = new Entity($oData);
 
         return $oEntity;
+    }
+
+    /**
+     * Getting current date of GUS database
+     *
+     * @return null|string Date in format YYYY-MM-DD
+     */
+    public function getServiceStatus()
+    {
+        $res = $this->oNativeApi->GetValue('StanDanych');
+
+        if ($res) {
+            return (new \DateTime($res))->format('Y-m-d');
+        }
+
+        return null;
     }
 
 

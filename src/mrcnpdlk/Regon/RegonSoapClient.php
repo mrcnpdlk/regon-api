@@ -11,11 +11,15 @@
  *
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
-
+declare (strict_types=1);
 
 namespace mrcnpdlk\Regon;
 
-
+/**
+ * Class RegonSoapClient
+ *
+ * @package mrcnpdlk\Regon
+ */
 class RegonSoapClient extends \SoapClient
 {
     /**
@@ -78,16 +82,6 @@ class RegonSoapClient extends \SoapClient
     }
 
     /**
-     * Add option to http context
-     *
-     * @param array $option
-     */
-    private function setContextOption(array $option)
-    {
-        stream_context_set_option($this->context, $option);
-    }
-
-    /**
      * Get location
      *
      * @return string
@@ -95,6 +89,16 @@ class RegonSoapClient extends \SoapClient
     public function getLocation()
     {
         return $this->location;
+    }
+
+    /**
+     * Add option to http context
+     *
+     * @param array $option
+     */
+    private function setContextOption(array $option)
+    {
+        stream_context_set_option($this->context, $option);
     }
 
     /**
