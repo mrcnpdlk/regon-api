@@ -204,7 +204,7 @@ class Entity
                     $oData->lokfiz_numerwRejestrzeEwidencji,
                     $oData->lokfiz_RodzajRejestru_Symbol,
                     $oData->lokfiz_RodzajRejestru_Nazwa,
-                    $oData->lokfiz_dataWpisuDoRejestruEwidencji
+                    $oData->lokfiz_dataWpisuDoRejestruEwidencji ?? null
                 );
             }
 

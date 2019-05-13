@@ -24,7 +24,7 @@ namespace mrcnpdlk\Regon\Enum;
 class Connection
 {
     public const BASE_WSDL_XSD_TEST = 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/wsdl/UslugaBIRzewnPubl.xsd';
-    public const BASE_WSDL_SVC_TEST = 'https://Wyszukiwarkaregontest.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc';
+    public const BASE_WSDL_SVC_TEST = 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc';
     public const BASE_WSDL_XSD      = 'https://wyszukiwarkaregontest.stat.gov.pl/wsBIR/wsdl/UslugaBIRzewnPubl.xsd'; //taki sam jak do testowego
     public const BASE_WSDL_SVC      = 'https://wyszukiwarkaregon.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc';
     public const BASE_WSDL_TEST_KEY = 'abcde12345abcde12345';
