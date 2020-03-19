@@ -21,7 +21,6 @@
 namespace Mrcnpdlk\Api\Regon;
 
 
-use Mrcnpdlk\Lib\Mapper;
 use Mrcnpdlk\Api\Regon\Enum\ReportCompactEnum;
 use Mrcnpdlk\Api\Regon\Enum\ReportFullEnum;
 use Mrcnpdlk\Api\Regon\Enum\ValueEnum;
@@ -29,8 +28,8 @@ use Mrcnpdlk\Api\Regon\Exception\AuthException;
 use Mrcnpdlk\Api\Regon\Exception\NotFound;
 use Mrcnpdlk\Api\Regon\Sdk\DaneSzukajPodmiotyResponse;
 use Mrcnpdlk\Api\Regon\Sdk\GetValueResponse;
-use Mrcnpdlk\Api\Regon\Sdk\PodmiotModel;
 use Mrcnpdlk\Api\Regon\Sdk\ZalogujResponse;
+use Mrcnpdlk\Lib\Mapper;
 
 class NativeApi
 {
@@ -68,7 +67,7 @@ class NativeApi
     }
 
     /**
-     * @param string                              $regon
+     * @param string                                  $regon
      * @param \Mrcnpdlk\Api\Regon\Enum\ReportFullEnum $report
      *
      * @throws \Mrcnpdlk\Lib\ModelMapException
@@ -92,7 +91,7 @@ class NativeApi
     }
 
     /**
-     * @param string                                 $date
+     * @param string                                     $date
      * @param \Mrcnpdlk\Api\Regon\Enum\ReportCompactEnum $report
      *
      * @throws \Mrcnpdlk\Lib\ModelMapException
@@ -119,15 +118,15 @@ class NativeApi
      * @param string|null $regon
      * @param string|null $nip
      * @param string|null $krs
-     * @param array       $tRegon
-     * @param array       $tNip
-     * @param array       $tKrs
+     * @param string[]    $tRegon
+     * @param string[]    $tNip
+     * @param string[]    $tKrs
      *
      * @throws \Mrcnpdlk\Lib\ModelMapException
      * @throws \Mrcnpdlk\Api\Regon\Exception
      * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
      * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
-     * @return \Mrcnpdlk\Api\Regon\Sdk\PodmiotModel[]
+     * @return \stdClass[]
      */
     public function DaneSzukajPodmioty(
         string $regon = null,
@@ -169,12 +168,7 @@ class NativeApi
         /** @var DaneSzukajPodmiotyResponse $obj */
         $obj = $this->mapper->jsonMap(DaneSzukajPodmiotyResponse::class, $res);
 
-        $tList = $this->decodeResponse($obj->response);
-        var_dump($tList);
-        /** @var PodmiotModel[] $tResp */
-        $tResp = $this->mapper->jsonMapArray(PodmiotModel::class, $tList);
-
-        return $tResp;
+        return $this->decodeResponse($obj->response);
     }
 
     /**
