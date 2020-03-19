@@ -18,7 +18,7 @@
  * Time: 20:37
  */
 
-namespace mrcnpdlk\Regon\Sdk;
+namespace Mrcnpdlk\Api\Regon\Sdk;
 
 
 class GetValueResponse

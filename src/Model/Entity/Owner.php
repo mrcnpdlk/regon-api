@@ -12,7 +12,7 @@
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
-namespace mrcnpdlk\Regon\Model\Entity;
+namespace Mrcnpdlk\Api\Regon\Model\Entity;
 
 
 class Owner

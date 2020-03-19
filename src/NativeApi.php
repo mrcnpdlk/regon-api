@@ -18,24 +18,25 @@
  * Time: 20:01
  */
 
-namespace mrcnpdlk\Regon;
+namespace Mrcnpdlk\Api\Regon;
 
 
 use Mrcnpdlk\Lib\Mapper;
-use mrcnpdlk\Regon\Enum\ReportFullEnum;
-use mrcnpdlk\Regon\Enum\ValueEnum;
-use mrcnpdlk\Regon\Exception\AuthException;
-use mrcnpdlk\Regon\Exception\NotFound;
-use mrcnpdlk\Regon\Sdk\DaneSzukajPodmiotyResponse;
-use mrcnpdlk\Regon\Sdk\GetValueResponse;
-use mrcnpdlk\Regon\Sdk\PodmiotModel;
-use mrcnpdlk\Regon\Sdk\ZalogujResponse;
+use Mrcnpdlk\Api\Regon\Enum\ReportCompactEnum;
+use Mrcnpdlk\Api\Regon\Enum\ReportFullEnum;
+use Mrcnpdlk\Api\Regon\Enum\ValueEnum;
+use Mrcnpdlk\Api\Regon\Exception\AuthException;
+use Mrcnpdlk\Api\Regon\Exception\NotFound;
+use Mrcnpdlk\Api\Regon\Sdk\DaneSzukajPodmiotyResponse;
+use Mrcnpdlk\Api\Regon\Sdk\GetValueResponse;
+use Mrcnpdlk\Api\Regon\Sdk\PodmiotModel;
+use Mrcnpdlk\Api\Regon\Sdk\ZalogujResponse;
 
 class NativeApi
 {
 
     /**
-     * @var \mrcnpdlk\Regon\Config
+     * @var \Mrcnpdlk\Api\Regon\Config
      */
     private $config;
     /**
@@ -49,14 +50,14 @@ class NativeApi
      */
     private $sid = '';
     /**
-     * @var \mrcnpdlk\Regon\RegonSoapClient
+     * @var \Mrcnpdlk\Api\Regon\RegonSoapClient
      */
     private $soap;
 
     /**
      * NativeApi constructor.
      *
-     * @param \mrcnpdlk\Regon\Config $oConfig
+     * @param \Mrcnpdlk\Api\Regon\Config $oConfig
      *
      */
     public function __construct(Config $oConfig)
@@ -68,12 +69,12 @@ class NativeApi
 
     /**
      * @param string                              $regon
-     * @param \mrcnpdlk\Regon\Enum\ReportFullEnum $report
+     * @param \Mrcnpdlk\Api\Regon\Enum\ReportFullEnum $report
      *
      * @throws \Mrcnpdlk\Lib\ModelMapException
-     * @throws \mrcnpdlk\Regon\Exception
-     * @throws \mrcnpdlk\Regon\Exception\AuthException
-     * @throws \mrcnpdlk\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
      * @return \stdClass[]
      */
     public function DanePobierzPelnyRaport(string $regon, ReportFullEnum $report): array
@@ -91,6 +92,30 @@ class NativeApi
     }
 
     /**
+     * @param string                                 $date
+     * @param \Mrcnpdlk\Api\Regon\Enum\ReportCompactEnum $report
+     *
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     * @return string[]
+     */
+    public function DanePobierzRaportZbiorczy(string $date, ReportCompactEnum $report): array
+    {
+        $this->Zaloguj();
+        $this->soap->setHttpSidHeader($this->sid);
+        $res = $this->soap->__soapCall('DanePobierzRaportZbiorczy', [
+            [
+                'pDataRaportu'  => $date,
+                'pNazwaRaportu' => $report->getValue(),
+            ],
+        ]);
+
+        return array_column($this->decodeResponse($res->DanePobierzRaportZbiorczyResult), 'regon');
+    }
+
+    /**
      * @param string|null $regon
      * @param string|null $nip
      * @param string|null $krs
@@ -99,10 +124,10 @@ class NativeApi
      * @param array       $tKrs
      *
      * @throws \Mrcnpdlk\Lib\ModelMapException
-     * @throws \mrcnpdlk\Regon\Exception
-     * @throws \mrcnpdlk\Regon\Exception\AuthException
-     * @throws \mrcnpdlk\Regon\Exception\InvalidResponse
-     * @return \mrcnpdlk\Regon\Sdk\PodmiotModel[]
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     * @return \Mrcnpdlk\Api\Regon\Sdk\PodmiotModel[]
      */
     public function DaneSzukajPodmioty(
         string $regon = null,
@@ -153,11 +178,11 @@ class NativeApi
     }
 
     /**
-     * @param \mrcnpdlk\Regon\Enum\ValueEnum $param
+     * @param \Mrcnpdlk\Api\Regon\Enum\ValueEnum $param
      *
      * @throws \Mrcnpdlk\Lib\ModelMapException
-     * @throws \mrcnpdlk\Regon\Exception
-     * @throws \mrcnpdlk\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
      * @return mixed
      */
     public function GetValue(ValueEnum $param)
@@ -181,8 +206,8 @@ class NativeApi
 
     /**
      * @throws \Mrcnpdlk\Lib\ModelMapException
-     * @throws \mrcnpdlk\Regon\Exception
-     * @throws \mrcnpdlk\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
      * @return $this
      */
     public function Zaloguj(): self
@@ -247,7 +272,7 @@ class NativeApi
     }
 
     /**
-     * @throws \mrcnpdlk\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception
      * @return  $this
      */
     private function reinitSoap(): self

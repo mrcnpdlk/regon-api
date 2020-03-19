@@ -13,7 +13,7 @@
  */
 
 
-namespace mrcnpdlk\Regon\Model;
+namespace Mrcnpdlk\Api\Regon\Model;
 
 
 class SearchResult

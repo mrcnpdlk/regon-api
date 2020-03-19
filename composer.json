@@ -37,7 +37,7 @@
   },
   "autoload": {
     "psr-4": {
-      "mrcnpdlk\\Regon\\": "src"
+      "Mrcnpdlk\\Api\\Regon\\": "src"
     }
   }
 }

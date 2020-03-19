@@ -13,13 +13,13 @@
  */
 
 
-namespace mrcnpdlk\Regon\Exception;
+namespace Mrcnpdlk\Api\Regon\Exception;
 
 
 /**
  * Class InvalidIdentifier
  *
- * @package mrcnpdlk\Regon\Exception
+ * @package Mrcnpdlk\Api\Regon\Exception
  */
 class InvalidIdentifier extends InvalidArgument
 {

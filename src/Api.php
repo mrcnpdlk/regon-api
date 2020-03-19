@@ -13,19 +13,19 @@
  */
 declare (strict_types=1);
 
-namespace mrcnpdlk\Regon;
+namespace Mrcnpdlk\Api\Regon;
 
-use mrcnpdlk\Regon\Enum\Report;
-use mrcnpdlk\Regon\Exception\InvalidResponse;
-use mrcnpdlk\Regon\Exception\NotFound;
-use mrcnpdlk\Regon\Model\Entity;
-use mrcnpdlk\Regon\Model\Entity\Owner;
-use mrcnpdlk\Regon\Model\SearchResult;
+use Mrcnpdlk\Api\Regon\Enum\Report;
+use Mrcnpdlk\Api\Regon\Exception\InvalidResponse;
+use Mrcnpdlk\Api\Regon\Exception\NotFound;
+use Mrcnpdlk\Api\Regon\Model\Entity;
+use Mrcnpdlk\Api\Regon\Model\Entity\Owner;
+use Mrcnpdlk\Api\Regon\Model\SearchResult;
 
 /**
  * Class Api
  *
- * @package mrcnpdlk\Regon
+ * @package Mrcnpdlk\Api\Regon
  */
 class Api
 {
@@ -39,7 +39,7 @@ class Api
      *
      * @param Client $oClient
      *
-     * @throws \mrcnpdlk\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception
      */
     public function __construct(Client $oClient)
     {
@@ -50,7 +50,7 @@ class Api
      * @param string $krs
      *
      * @return SearchResult
-     * @throws \mrcnpdlk\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
      */
     public function getByKrs(string $krs): SearchResult
     {
@@ -63,7 +63,7 @@ class Api
      * @param string $nip
      *
      * @return SearchResult
-     * @throws \mrcnpdlk\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
      */
     public function getByNip(string $nip): SearchResult
     {
@@ -76,7 +76,7 @@ class Api
      * @param string $regon
      *
      * @return SearchResult
-     * @throws \mrcnpdlk\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
      */
     public function getByRegon(string $regon): SearchResult
     {
@@ -131,7 +131,7 @@ class Api
      * @param string $regon
      *
      * @return Entity|null
-     * @throws \mrcnpdlk\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
      * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     public function getReport(string $regon): ?Entity

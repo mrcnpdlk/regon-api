@@ -13,7 +13,7 @@
  */
 
 
-namespace mrcnpdlk\Regon\Exception;
+namespace Mrcnpdlk\Api\Regon\Exception;
 
 
 class NotFound extends InvalidResponse

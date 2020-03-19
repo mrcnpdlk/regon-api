@@ -18,7 +18,7 @@
  * Time: 20:54
  */
 
-namespace mrcnpdlk\Regon\Enum;
+namespace Mrcnpdlk\Api\Regon\Enum;
 
 
 use MyCLabs\Enum\Enum;

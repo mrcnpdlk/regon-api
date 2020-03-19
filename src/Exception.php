@@ -13,7 +13,7 @@
  */
 
 
-namespace mrcnpdlk\Regon;
+namespace Mrcnpdlk\Api\Regon;
 
 
 class Exception extends \Mrcnpdlk\Lib\Exception

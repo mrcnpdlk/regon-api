@@ -13,10 +13,10 @@
  */
 
 
-namespace mrcnpdlk\Regon\Exception;
+namespace Mrcnpdlk\Api\Regon\Exception;
 
 
-use mrcnpdlk\Regon\Exception;
+use Mrcnpdlk\Api\Regon\Exception;
 
 class InvalidArgument extends Exception
 {

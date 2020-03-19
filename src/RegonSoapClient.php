@@ -13,12 +13,12 @@
  */
 declare (strict_types=1);
 
-namespace mrcnpdlk\Regon;
+namespace Mrcnpdlk\Api\Regon;
 
 /**
  * Class RegonSoapClient
  *
- * @package mrcnpdlk\Regon
+ * @package Mrcnpdlk\Api\Regon
  */
 class RegonSoapClient extends \SoapClient
 {

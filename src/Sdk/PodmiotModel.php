@@ -18,7 +18,7 @@
  * Time: 21:46
  */
 
-namespace mrcnpdlk\Regon\Sdk;
+namespace Mrcnpdlk\Api\Regon\Sdk;
 
 
 class PodmiotModel
@@ -72,7 +72,7 @@ class PodmiotModel
      */
     public $NrLokalu;
     /**
-     * @var \mrcnpdlk\Regon\Enum\TypeEnum
+     * @var \Mrcnpdlk\Api\Regon\Enum\TypeEnum
      */
     public $Typ;
     /**

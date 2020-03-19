@@ -13,14 +13,14 @@
  */
 
 
-namespace mrcnpdlk\Regon\Exception;
+namespace Mrcnpdlk\Api\Regon\Exception;
 
-use mrcnpdlk\Regon\Exception;
+use Mrcnpdlk\Api\Regon\Exception;
 
 /**
  * Class ResponseException
  *
- * @package mrcnpdlk\Regon\Exception
+ * @package Mrcnpdlk\Api\Regon\Exception
  */
 class InvalidResponse extends Exception
 {

@@ -18,10 +18,10 @@
  * Time: 20:44
  */
 
-namespace mrcnpdlk\Regon\Exception;
+namespace Mrcnpdlk\Api\Regon\Exception;
 
 
-use mrcnpdlk\Regon\Exception;
+use Mrcnpdlk\Api\Regon\Exception;
 
 class AuthException extends Exception
 {

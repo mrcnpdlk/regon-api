@@ -18,7 +18,7 @@
  * Time: 20:03
  */
 
-namespace mrcnpdlk\Regon;
+namespace Mrcnpdlk\Api\Regon;
 
 
 use Mrcnpdlk\Lib\ConfigurationOptionsAbstract;

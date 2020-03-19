@@ -12,11 +12,11 @@
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
-namespace mrcnpdlk\Regon\Model;
+namespace Mrcnpdlk\Api\Regon\Model;
 
 
-use mrcnpdlk\Regon\Model\Entity\Address;
-use mrcnpdlk\Regon\Model\Entity\Register;
+use Mrcnpdlk\Api\Regon\Model\Entity\Address;
+use Mrcnpdlk\Api\Regon\Model\Entity\Register;
 
 class Entity
 {
@@ -73,7 +73,7 @@ class Entity
      */
     public $ceidg;
     /**
-     * @var \mrcnpdlk\Regon\Model\Entity\Register
+     * @var \Mrcnpdlk\Api\Regon\Model\Entity\Register
      */
     public $register;
     /**
@@ -94,7 +94,7 @@ class Entity
     public $owner;
 
     /**
-     * @var \mrcnpdlk\Regon\Model\Entity\Date
+     * @var \Mrcnpdlk\Api\Regon\Model\Entity\Date
      */
     public $history;
 
