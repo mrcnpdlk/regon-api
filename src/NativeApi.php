@@ -18,6 +18,8 @@
  * Time: 20:01
  */
 
+declare (strict_types=1);
+
 namespace Mrcnpdlk\Api\Regon;
 
 
