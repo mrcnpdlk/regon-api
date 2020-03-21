@@ -1,0 +1,15 @@
+parameters:
+	level: 6
+	paths:
+		- src
+	fileExtensions:
+		- php
+	checkGenericClassInNonGenericObjectType: false
+	ignoreErrors:
+	    -
+	        message: '#Call to an undefined static method SoapClient::__construct#'
+	        path: %currentWorkingDirectory%/src/RegonSoapClient.php
+includes:
+	- vendor/phpstan/phpstan-phpunit/extension.neon
+	- vendor/phpstan/phpstan-phpunit/rules.neon
+	- vendor/jangregor/phpstan-prophecy/src/extension.neon

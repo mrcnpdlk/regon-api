@@ -33,11 +33,26 @@
     "myclabs/php-enum": "^1"
   },
   "require-dev": {
-    "monolog/monolog": "^1"
+    "monolog/monolog": "^1",
+    "phpunit/phpunit": "^8",
+    "phpunit/php-code-coverage": "^7",
+    "friendsofphp/php-cs-fixer": "^2",
+    "phpstan/phpstan": "^0",
+    "phpstan/phpstan-phpunit": "^0",
+    "jangregor/phpstan-prophecy": "^0"
   },
   "autoload": {
     "psr-4": {
       "Mrcnpdlk\\Api\\Regon\\": "src"
     }
+  },
+  "scripts": {
+    "test": [
+      "@phpstan",
+      "@lint"
+    ],
+    "phpstan": "phpstan analyse",
+    "fixer": "php-cs-fixer fix --diff --show-progress=dots",
+    "lint": "php-cs-fixer fix --diff --dry-run"
   }
 }

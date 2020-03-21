@@ -8,7 +8,6 @@
  *
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
- *
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
@@ -19,7 +18,6 @@
  */
 
 namespace Mrcnpdlk\Api\Regon\Sdk;
-
 
 class EntityModel
 {
@@ -290,7 +288,7 @@ class EntityModel
      */
     public $registerTypeName;
     /**
-     * @var string|null
+     * @var int|null
      */
     public $localCount;
     /**
@@ -2442,10 +2440,10 @@ class EntityModel
             $this->ceidg = $this->registerNr;
         }
 
-        /**
+        /*
          * returned regon 47304027200000 is invalid, need to cut leading zeros
          */
-        if (substr($this->regon, 9, 5) === '00000') {
+        if ('00000' === substr($this->regon, 9, 5)) {
             $this->regon = substr($this->regon, 0, 9);
         }
         $this->regon9 = substr($this->regon, 0, 9);

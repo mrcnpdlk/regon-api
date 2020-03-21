@@ -8,19 +8,20 @@
  *
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
- *
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
-declare (strict_types=1);
+declare(strict_types=1);
 
 namespace Mrcnpdlk\Api\Regon;
 
+use DOMDocument;
+use DOMElement;
+use SoapClient;
+
 /**
  * Class RegonSoapClient
- *
- * @package Mrcnpdlk\Api\Regon
  */
-class RegonSoapClient extends \SoapClient
+class RegonSoapClient extends SoapClient
 {
     /**
      * @var resource
@@ -34,9 +35,9 @@ class RegonSoapClient extends \SoapClient
     /**
      * SoapClient constructor.
      *
-     * @param string     $wsdl
-     * @param string     $location
-     * @param array|null $options
+     * @param string                   $wsdl
+     * @param string                   $location
+     * @param array<string,mixed>|null $options
      *
      * @throws \SoapFault
      */
@@ -64,13 +65,13 @@ class RegonSoapClient extends \SoapClient
      */
     public function __doRequest($request, $location, $action, $version, $oneWay = 0): string
     {
-        $dom                     = new \DOMDocument('1.0', 'UTF-8');
+        $dom                     = new DOMDocument('1.0', 'UTF-8');
         $dom->preserveWhiteSpace = false;
         $dom->loadXML($request);
 
         $hdr = $dom->createElement('env:Header');
-        $hdr->appendChild(new \DOMElement('Action', $action, 'http://www.w3.org/2005/08/addressing'));
-        $hdr->appendChild(new \DOMElement('To', $location, 'http://www.w3.org/2005/08/addressing'));
+        $hdr->appendChild(new DOMElement('Action', $action, 'http://www.w3.org/2005/08/addressing'));
+        $hdr->appendChild(new DOMElement('To', $location, 'http://www.w3.org/2005/08/addressing'));
         $dom->documentElement->insertBefore($hdr, $dom->documentElement->firstChild);
         $request  = $dom->saveXML();
         $response = parent::__doRequest($request, $location, $action, $version, $oneWay);
@@ -114,7 +115,7 @@ class RegonSoapClient extends \SoapClient
     /**
      * Add option to http context
      *
-     * @param array $option
+     * @param array<string,mixed> $option
      */
     private function setContextOption(array $option): void
     {

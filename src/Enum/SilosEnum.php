@@ -8,7 +8,6 @@
  *
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
- *
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
@@ -19,7 +18,6 @@
  */
 
 namespace Mrcnpdlk\Api\Regon\Enum;
-
 
 use MyCLabs\Enum\Enum;
 
@@ -37,5 +35,4 @@ class SilosEnum extends Enum
     public const OTHER    = 3;
     public const KRUPGN   = 4;
     public const LAW      = 6;
-
 }

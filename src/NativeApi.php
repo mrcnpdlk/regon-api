@@ -8,7 +8,6 @@
  *
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
- *
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
@@ -18,10 +17,9 @@
  * Time: 20:01
  */
 
-declare (strict_types=1);
+declare(strict_types=1);
 
 namespace Mrcnpdlk\Api\Regon;
-
 
 use Mrcnpdlk\Api\Regon\Enum\ReportCompactEnum;
 use Mrcnpdlk\Api\Regon\Enum\ReportFullEnum;
@@ -35,7 +33,6 @@ use Mrcnpdlk\Lib\Mapper;
 
 class NativeApi
 {
-
     /**
      * @var \Mrcnpdlk\Api\Regon\Config
      */
@@ -59,13 +56,11 @@ class NativeApi
      * NativeApi constructor.
      *
      * @param \Mrcnpdlk\Api\Regon\Config $oConfig
-     *
      */
     public function __construct(Config $oConfig)
     {
         $this->mapper = new Mapper(null);
         $this->config = $oConfig;
-
     }
 
     /**
@@ -76,6 +71,7 @@ class NativeApi
      * @throws \Mrcnpdlk\Api\Regon\Exception
      * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
      * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     *
      * @return \stdClass[]
      */
     public function DanePobierzPelnyRaport(string $regon, ReportFullEnum $report): array
@@ -100,6 +96,7 @@ class NativeApi
      * @throws \Mrcnpdlk\Api\Regon\Exception
      * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
      * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     *
      * @return string[]
      */
     public function DanePobierzRaportZbiorczy(string $date, ReportCompactEnum $report): array
@@ -128,6 +125,7 @@ class NativeApi
      * @throws \Mrcnpdlk\Api\Regon\Exception
      * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
      * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     *
      * @return \stdClass[]
      */
     public function DaneSzukajPodmioty(
@@ -143,13 +141,12 @@ class NativeApi
         $tRegon9zn  = [];
         $tRegon14zn = [];
         foreach ($tRegon as $r) {
-            if (strlen($r) === 9) {
+            if (9 === strlen($r)) {
                 $tRegon9zn[] = $r;
-            } elseif (strlen($r) === 14) {
+            } elseif (14 === strlen($r)) {
                 $tRegon14zn[] = $r;
             }
         }
-
 
         $this->Zaloguj();
         $this->soap->setHttpSidHeader($this->sid);
@@ -179,6 +176,7 @@ class NativeApi
      * @throws \Mrcnpdlk\Lib\ModelMapException
      * @throws \Mrcnpdlk\Api\Regon\Exception
      * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     *
      * @return mixed
      */
     public function GetValue(ValueEnum $param)
@@ -204,23 +202,23 @@ class NativeApi
      * @throws \Mrcnpdlk\Lib\ModelMapException
      * @throws \Mrcnpdlk\Api\Regon\Exception
      * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     *
      * @return $this
      */
     public function Zaloguj(): self
     {
-        if ($this->soap === null) {
+        if (null === $this->soap) {
             $this->reinitSoap();
         }
-        if ($this->sid === '') {
+        if ('' === $this->sid) {
             $res = $this->soap->__soapCall('Zaloguj', [['pKluczUzytkownika' => $this->config->getPassword()]]);
             /** @var ZalogujResponse $obj */
             $obj = $this->mapper->jsonMap(ZalogujResponse::class, $res);
-            if ($obj->sid === '') {
+            if ('' === $obj->sid) {
                 throw new AuthException('Niepoprawne dane autoryzacyjne');
             }
             $this->sid = $obj->sid;
         }
-
 
         return $this;
     }
@@ -238,6 +236,7 @@ class NativeApi
      *
      * @throws Exception\InvalidResponse
      * @throws \Exception
+     *
      * @return \stdClass[]
      */
     private function decodeResponse(string $response): array
@@ -269,7 +268,8 @@ class NativeApi
 
     /**
      * @throws \Mrcnpdlk\Api\Regon\Exception
-     * @return  $this
+     *
+     * @return $this
      */
     private function reinitSoap(): self
     {

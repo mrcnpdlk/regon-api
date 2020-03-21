@@ -8,7 +8,6 @@
  *
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
- *
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
@@ -19,7 +18,6 @@
  */
 
 namespace Mrcnpdlk\Api\Regon\Enum;
-
 
 use MyCLabs\Enum\Enum;
 
@@ -35,5 +33,4 @@ class TypeEnum extends Enum
     public const LF = 'LF';
     public const P  = 'P';
     public const LP = 'LP';
-
 }

@@ -8,7 +8,6 @@
  *
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
- *
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
@@ -19,7 +18,6 @@
  */
 
 namespace Mrcnpdlk\Api\Regon\Enum;
-
 
 use MyCLabs\Enum\Enum;
 
@@ -39,5 +37,4 @@ class ReportCompactEnum extends Enum
     public const BIR11NoweJednostkiLokalne                                    = 'BIR11NoweJednostkiLokalne';
     public const BIR11AktualizowaneJednostkiLokalne                           = 'BIR11AktualizowaneJednostkiLokalne';
     public const BIR11SkresloneJednostkiLokalne                               = 'BIR11SkresloneJednostkiLokalne';
-
 }
