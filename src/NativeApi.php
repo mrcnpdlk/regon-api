@@ -2,119 +2,133 @@
 /**
  * REGON-API
  *
- * Copyright (c) 2019 pudelek.org.pl
+ * Copyright (c) 2020 pudelek.org.pl
  *
  * @license MIT License (MIT)
  *
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
- *
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
-declare (strict_types=1);
-
-namespace mrcnpdlk\Regon;
-
-
-use mrcnpdlk\Regon\Enum\Connection;
-use mrcnpdlk\Regon\Exception\InvalidResponse;
-use mrcnpdlk\Regon\Exception\NotFound;
 
 /**
- * Class NativeApi
- *
- * @package mrcnpdlk\Regon
+ * Created by Marcin.
+ * Date: 19.03.2020
+ * Time: 20:01
  */
-final class NativeApi
+
+declare(strict_types=1);
+
+namespace Mrcnpdlk\Api\Regon;
+
+use Mrcnpdlk\Api\Regon\Enum\ReportCompactEnum;
+use Mrcnpdlk\Api\Regon\Enum\ReportFullEnum;
+use Mrcnpdlk\Api\Regon\Enum\ValueEnum;
+use Mrcnpdlk\Api\Regon\Exception\AuthException;
+use Mrcnpdlk\Api\Regon\Exception\NotFoundException;
+use Mrcnpdlk\Api\Regon\Sdk\DaneSzukajPodmiotyResponse;
+use Mrcnpdlk\Api\Regon\Sdk\GetValueResponse;
+use Mrcnpdlk\Api\Regon\Sdk\ZalogujResponse;
+use Mrcnpdlk\Lib\Mapper;
+
+class NativeApi
 {
     /**
-     * @var \mrcnpdlk\Regon\NativeApi
+     * @var \Mrcnpdlk\Api\Regon\Config
      */
-    private static $instance = null;
+    private $config;
     /**
-     * @var Client
+     * @var \Mrcnpdlk\Lib\Mapper
      */
-    private $oClient;
+    private $mapper;
+    /**
+     * Token API
+     *
+     * @var string
+     */
+    private $sid = '';
+    /**
+     * @var \Mrcnpdlk\Api\Regon\RegonSoapClient
+     */
+    private $soap;
 
     /**
      * NativeApi constructor.
      *
-     * @param \mrcnpdlk\Regon\Client $oClient
+     * @param \Mrcnpdlk\Api\Regon\Config $oConfig
+     */
+    public function __construct(Config $oConfig)
+    {
+        $this->mapper = new Mapper(null);
+        $this->config = $oConfig;
+    }
+
+    /**
+     * @param string                                  $regon
+     * @param \Mrcnpdlk\Api\Regon\Enum\ReportFullEnum $report
      *
-     * @throws \mrcnpdlk\Regon\Exception
-     */
-    private function __construct(Client $oClient)
-    {
-        $this->oClient = $oClient;
-        $this->oClient->login();
-    }
-
-    /**
-     * @param \mrcnpdlk\Regon\Client $oClient
-     *
-     * @return \mrcnpdlk\Regon\NativeApi
-     * @throws \mrcnpdlk\Regon\Exception
-     */
-    public static function create(Client $oClient): NativeApi
-    {
-        if (!isset(static::$instance)) {
-            static::$instance = new static($oClient);
-        }
-
-        return static::$instance;
-    }
-
-    /**
-     * @return \mrcnpdlk\Regon\NativeApi
-     * @throws \mrcnpdlk\Regon\Exception
-     */
-    public static function getInstance(): NativeApi
-    {
-        if (!isset(static::$instance)) {
-            throw new Exception(sprintf('First call CREATE method!'));
-        }
-
-        return static::$instance;
-    }
-
-    /**
-     * @param string $regon
-     * @param string $reportName
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
      *
      * @return \stdClass[]
-     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
-    public function DanePobierzPelnyRaport(string $regon, string $reportName): array
+    public function DanePobierzPelnyRaport(string $regon, ReportFullEnum $report): array
     {
-        $hashKey = md5(json_encode([__METHOD__, $regon, $reportName]));
-        $self    = $this;
+        $this->Zaloguj();
+        $this->soap->setHttpSidHeader($this->sid);
+        $res = $this->soap->__soapCall('DanePobierzPelnyRaport', [
+            [
+                'pRegon'        => $regon,
+                'pNazwaRaportu' => $report->getValue(),
+            ],
+        ]);
 
-        return $this->useCache(function () use ($self, $regon, $reportName) {
-            $res = $this->oClient->request('DanePobierzPelnyRaport',
-                [
-                    'pRegon'        => $regon,
-                    'pNazwaRaportu' => $reportName,
-                ]);
-
-            return $this->decodeResponse($res);
-        }
-            , $hashKey);
-
+        return $this->decodeResponse($res->DanePobierzPelnyRaportResult);
     }
 
     /**
-     * @param string|null $regon Regon
-     * @param string|null $nip   NIP
-     * @param string|null $krs   KRS
-     * @param array       $tRegon
-     * @param array       $tNip
-     * @param array       $tKrs
+     * @param string                                     $date
+     * @param \Mrcnpdlk\Api\Regon\Enum\ReportCompactEnum $report
+     *
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     *
+     * @return string[]
+     */
+    public function DanePobierzRaportZbiorczy(string $date, ReportCompactEnum $report): array
+    {
+        $this->Zaloguj();
+        $this->soap->setHttpSidHeader($this->sid);
+        $res = $this->soap->__soapCall('DanePobierzRaportZbiorczy', [
+            [
+                'pDataRaportu'  => $date,
+                'pNazwaRaportu' => $report->getValue(),
+            ],
+        ]);
+
+        return array_column($this->decodeResponse($res->DanePobierzRaportZbiorczyResult), 'regon');
+    }
+
+    /**
+     * @param string|null $regon
+     * @param string|null $nip
+     * @param string|null $krs
+     * @param string[]    $tRegon
+     * @param string[]    $tNip
+     * @param string[]    $tKrs
+     *
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
      *
      * @return \stdClass[]
-     * @throws \mrcnpdlk\Regon\Exception\InvalidResponse
-     * @throws \Exception
      */
-    public function DaneSzukaj(
+    public function DaneSzukajPodmioty(
         string $regon = null,
         string $nip = null,
         string $krs = null,
@@ -127,15 +141,16 @@ final class NativeApi
         $tRegon9zn  = [];
         $tRegon14zn = [];
         foreach ($tRegon as $r) {
-            if (strlen($r) === 9) {
+            if (9 === strlen($r)) {
                 $tRegon9zn[] = $r;
-            } elseif (strlen($r) === 14) {
+            } elseif (14 === strlen($r)) {
                 $tRegon14zn[] = $r;
             }
         }
 
-
-        $res = $this->oClient->request('DaneSzukaj',
+        $this->Zaloguj();
+        $this->soap->setHttpSidHeader($this->sid);
+        $res = $this->soap->__soapCall('DaneSzukajPodmioty', [
             [
                 'pParametryWyszukiwania' => [
                     'Krs'        => $krs,
@@ -145,96 +160,97 @@ final class NativeApi
                     'Regon'      => $regon,
                     'Regony9zn'  => !empty($tRegon9zn) ? implode(' ', $tRegon9zn) : null,
                     'Regony14zn' => !empty($tRegon14zn) ? implode(' ', $tRegon14zn) : null,
-
-
                 ],
-            ]
-        );
+            ],
+        ]);
 
-        return $this->decodeResponse($res);
+        /** @var DaneSzukajPodmiotyResponse $obj */
+        $obj = $this->mapper->jsonMap(DaneSzukajPodmiotyResponse::class, $res);
 
+        return $this->decodeResponse($obj->response);
     }
 
     /**
-     * @param string $valueName
+     * @param \Mrcnpdlk\Api\Regon\Enum\ValueEnum $param
+     *
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
      *
      * @return mixed
-     * @throws \Exception
      */
-    public function GetValue(string $valueName)
+    public function GetValue(ValueEnum $param)
     {
-        $res = $this->oClient->request('GetValue',
-            [
-                'pNazwaParametru' => $valueName,
-            ],
-            true
-        );
+        $this->Zaloguj();
+        $this->soap->setHttpSidHeader($this->sid);
+        $res = $this->soap->__soapCall('GetValue', [['pNazwaParametru' => $param->getValue()]]);
+        /** @var GetValueResponse $obj */
+        $obj = $this->mapper->jsonMap(GetValueResponse::class, $res);
 
-        return $res;
+        return $obj->response;
     }
 
     /**
-     * Logout
-     *
-     * @return $this
-     * @throws \Exception
+     * Wylogowywanie
      */
-    public function Wyloguj(): self
+    public function Wyloguj(): void
     {
-        $this->oClient->logout();
-
-        return $this;
+        $this->soap->__soapCall('Wyloguj', [['pIdentyfikatorSesji' => $this->sid]]);
     }
 
     /**
-     * Login
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
      *
      * @return $this
-     * @throws \mrcnpdlk\Regon\Exception
      */
     public function Zaloguj(): self
     {
-        $this->oClient->login();
+        if (null === $this->soap) {
+            $this->reinitSoap();
+        }
+        if ('' === $this->sid) {
+            $res = $this->soap->__soapCall('Zaloguj', [['pKluczUzytkownika' => $this->config->getPassword()]]);
+            /** @var ZalogujResponse $obj */
+            $obj = $this->mapper->jsonMap(ZalogujResponse::class, $res);
+            if ('' === $obj->sid) {
+                throw new AuthException('Niepoprawne dane autoryzacyjne');
+            }
+            $this->sid = $obj->sid;
+        }
 
         return $this;
     }
 
     /**
-     * @throws \mrcnpdlk\Regon\Exception
+     * Destruktor
      */
-    public function __wakeup()
+    public function __destruct()
     {
-        throw new Exception('Cannot unserialize singleton');
-    }
-
-    private function __clone()
-    {
-        //Me not like clones! Me smash clones!
+        $this->Wyloguj();
     }
 
     /**
      * @param string $response xml string
      *
-     * @return \stdClass[]
      * @throws Exception\InvalidResponse
      * @throws \Exception
+     *
+     * @return \stdClass[]
      */
     private function decodeResponse(string $response): array
     {
         $answer = [];
-        $code   = (int)$this->GetValue(Connection::PARAM_GETVALUE_MESSAGE_CODE);
-        if ($code) {
-            throw new NotFound($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE), $code);
-        }
-
-        if ($code) {
-            throw new InvalidResponse($this->GetValue(Connection::PARAM_GETVALUE_MESSAGE), $code);
+        $code   = (int)$this->GetValue(ValueEnum::KomunikatKod());
+        if ($code > 0) {
+            throw new NotFoundException($this->GetValue(ValueEnum::KomunikatTresc()), $code);
         }
 
         $res = new \SimpleXMLElement($response);
 
         foreach ($res->children() as $child) {
-            $item = json_decode(json_encode($child));
+            $item = json_decode(json_encode($child), false);
             //clearing data - empty object as NULL
             foreach (get_object_vars($item) as $key => &$value) {
                 $item->$key = empty((array)$value) ? null : (is_string($value) ? trim($value) : $value);
@@ -251,32 +267,28 @@ final class NativeApi
     }
 
     /**
-     * Caching things
+     * @throws \Mrcnpdlk\Api\Regon\Exception
      *
-     * @param \Closure $closure Function calling wheen cache is empty or not valid
-     * @param mixed    $hashKey Cache key of item
-     * @param int|null $ttl     Time to live for item
-     *
-     * @return mixed
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @return $this
      */
-    private function useCache(\Closure $closure, string $hashKey, int $ttl = null)
+    private function reinitSoap(): self
     {
-        if ($this->oClient->getCache()) {
-            if ($this->oClient->getCache()->has($hashKey)) {
-                $answer = $this->oClient->getCache()->get($hashKey);
-                $this->oClient->getLogger()->debug(sprintf('CACHE [%s]: geting from cache', $hashKey));
-            } else {
-                $answer = $closure();
-                $this->oClient->getCache()->set($hashKey, $answer, $ttl);
-                $this->oClient->getLogger()->debug(sprintf('CACHE [%s]: old, reset', $hashKey));
-            }
-        } else {
-            $this->oClient->getLogger()->debug(sprintf('CACHE [%s]: no implemented', $hashKey));
-            $answer = $closure();
+        $options = [
+            'soap_version' => \SOAP_1_2,
+            'trace'        => true,
+            'style'        => \SOAP_DOCUMENT,
+            'location'     => $this->config->getLocation(),
+            'features'     => 1,
+        ];
+        try {
+            $this->soap = new RegonSoapClient(
+                $this->config->getWsdl(),
+                $this->config->getLocation(),
+                $options);
+        } catch (\SoapFault $e) {
+            throw new Exception('Nie udało utworzyć się instancji SoapClient', 1, $e);
         }
 
-        return $answer;
+        return $this;
     }
-
 }

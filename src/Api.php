@@ -2,165 +2,216 @@
 /**
  * REGON-API
  *
- * Copyright (c) 2019 pudelek.org.pl
+ * Copyright (c) 2020 pudelek.org.pl
  *
  * @license MIT License (MIT)
  *
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
- *
- * @author Marcin Pudełek <marcin@pudelek.org.pl>
+ * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
-declare (strict_types=1);
-
-namespace mrcnpdlk\Regon;
-
-use mrcnpdlk\Regon\Enum\Report;
-use mrcnpdlk\Regon\Exception\InvalidResponse;
-use mrcnpdlk\Regon\Exception\NotFound;
-use mrcnpdlk\Regon\Model\Entity;
-use mrcnpdlk\Regon\Model\Entity\Owner;
-use mrcnpdlk\Regon\Model\SearchResult;
 
 /**
- * Class Api
- *
- * @package mrcnpdlk\Regon
+ * Created by Marcin.
+ * Date: 19.03.2020
+ * Time: 22:44
  */
+
+declare(strict_types=1);
+
+namespace Mrcnpdlk\Api\Regon;
+
+use DateTime;
+use Mrcnpdlk\Api\Regon\Enum\ReportFullEnum;
+use Mrcnpdlk\Api\Regon\Enum\TypeEnum;
+use Mrcnpdlk\Api\Regon\Enum\ValueEnum;
+use Mrcnpdlk\Api\Regon\Exception\NotFoundException;
+use Mrcnpdlk\Api\Regon\Sdk\CompanyModel;
+use Mrcnpdlk\Lib\Mapper;
+
 class Api
 {
     /**
-     * @var Client
+     * @var \Mrcnpdlk\Lib\Mapper
      */
-    private $oNativeApi;
+    private $mapper;
+    /**
+     * @var \Mrcnpdlk\Api\Regon\Config
+     */
+    private $config;
+    /**
+     * @var \Mrcnpdlk\Api\Regon\NativeApi
+     */
+    private $nativeApi;
 
     /**
      * Api constructor.
      *
-     * @param Client $oClient
-     *
-     * @throws \mrcnpdlk\Regon\Exception
+     * @param \Mrcnpdlk\Api\Regon\Config $oConfig
      */
-    public function __construct(Client $oClient)
+    public function __construct(Config $oConfig)
     {
-        $this->oNativeApi = NativeApi::create($oClient);
+        $this->mapper    = new Mapper(null);
+        $this->config    = $oConfig;
+        $this->nativeApi = new NativeApi($oConfig);
+    }
+
+    /**
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     *
+     * @return \DateTime
+     */
+    public function getDatabaseState(): DateTime
+    {
+        $res = $this->nativeApi->GetValue(ValueEnum::StanDanych());
+
+        return new DateTime($res);
+    }
+
+    /**
+     * @param string $regon
+     *
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception\NotFoundException
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     *
+     * @return \Mrcnpdlk\Api\Regon\Sdk\EntityModel
+     */
+    public function getReport(string $regon): Sdk\EntityModel
+    {
+        $tRes = $this->searchByRegon($regon);
+        if (0 === count($tRes)) {
+            throw new NotFoundException(sprintf('Podmiot [regon=%s] nie został odnaleziony', $regon));
+        }
+        $company = $tRes[0];
+        switch ($company->type->getValue()) {
+            case TypeEnum::P:
+                $oEntity = $this->getReportForLaw($regon);
+                break;
+            case TypeEnum::F:
+                $oEntity = $this->getReportForPhysics($regon);
+                break;
+            case TypeEnum::LF:
+                $oEntity = $this->getReportForPhysicsLocal($regon);
+                break;
+            default:
+                throw new Exception(sprintf('Niewspierany typ podmiotu [%s]', $company->type->getValue()));
+        }
+
+        return $oEntity->validate();
     }
 
     /**
      * @param string $krs
      *
-     * @return SearchResult
-     * @throws \mrcnpdlk\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     *
+     * @return \Mrcnpdlk\Api\Regon\Sdk\CompanyModel[]
      */
-    public function getByKrs(string $krs): SearchResult
+    public function searchByKrs(string $krs)
     {
-        $tList = $this->oNativeApi->DaneSzukaj(null, null, $krs);
+        $res = $this->nativeApi->DaneSzukajPodmioty(null, null, $krs);
+        /** @var CompanyModel[] $tList */
+        $tList = $this->mapper->jsonMapArray(CompanyModel::class, $res);
 
-        return new SearchResult($tList[0]);
+        return $tList;
     }
 
     /**
      * @param string $nip
      *
-     * @return SearchResult
-     * @throws \mrcnpdlk\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     *
+     * @return \Mrcnpdlk\Api\Regon\Sdk\CompanyModel[]
      */
-    public function getByNip(string $nip): SearchResult
+    public function searchByNip(string $nip): array
     {
-        $tList = $this->oNativeApi->DaneSzukaj(null, $nip);
+        $res = $this->nativeApi->DaneSzukajPodmioty(null, $nip);
+        /** @var CompanyModel[] $tList */
+        $tList = $this->mapper->jsonMapArray(CompanyModel::class, $res);
 
-        return new SearchResult($tList[0]);
+        return $tList;
     }
 
     /**
      * @param string $regon
      *
-     * @return SearchResult
-     * @throws \mrcnpdlk\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     *
+     * @return \Mrcnpdlk\Api\Regon\Sdk\CompanyModel[]
      */
-    public function getByRegon(string $regon): SearchResult
+    public function searchByRegon(string $regon): array
     {
-        $tList = $this->oNativeApi->DaneSzukaj($regon);
+        $res = $this->nativeApi->DaneSzukajPodmioty($regon);
+        /** @var CompanyModel[] $tList */
+        $tList = $this->mapper->jsonMapArray(CompanyModel::class, $res);
 
-        return new SearchResult($tList[0]);
+        return $tList;
     }
 
     /**
      * @param string $regon
      *
-     * @return string[]
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception\NotFoundException
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     *
+     * @return \Mrcnpdlk\Api\Regon\Sdk\EntityModel
      */
-    private function getLocalsLaw(string $regon): ?array
+    private function getReportForLaw(string $regon): Sdk\EntityModel
     {
-        try {
-            $answer  = [];
-            $tLocals = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_LOCALS_LAW);
-            foreach ($tLocals as $local) {
-                $answer[] = $local->lokpraw_regon14;
+        $res = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11OsPrawna());
+        if (0 === count($res)) {
+            throw new NotFoundException(sprintf('Raport [regon=%s] nie został odnaleziony', $regon));
+        }
+        /** @var \Mrcnpdlk\Api\Regon\Sdk\EntityModel $oEntity */
+        $oEntity = $this->mapper->jsonMap(Sdk\EntityModel::class, $res[0]);
+
+        return $oEntity;
+    }
+
+    /**
+     * @param string $regon
+     *
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception\NotFoundException
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     *
+     * @return \Mrcnpdlk\Api\Regon\Sdk\EntityModel
+     */
+    private function getReportForPhysics(string $regon): Sdk\EntityModel
+    {
+        $res = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11OsFizycznaDaneOgolne());
+        if (0 === count($res)) {
+            throw new NotFoundException(sprintf('Raport [regon=%s] nie został odnaleziony', $regon));
+        }
+        /** @var \Mrcnpdlk\Api\Regon\Sdk\EntityModel $oEntity */
+        $oEntity = $this->mapper->jsonMap(Sdk\EntityModel::class, $res[0]);
+        if ('1' === $res[0]->fiz_dzialalnoscCeidg) {
+            $tCeidgRes = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11OsFizycznaDzialalnoscCeidg());
+            if (0 === count($tCeidgRes)) {
+                throw new NotFoundException(sprintf('Raport CEIDG [regon=%s] nie został odnaleziony', $regon));
             }
 
-            return $answer;
-        } catch (NotFound $e) {
-            return [];
-        }
-    }
-
-    /**
-     * @param string $regon
-     *
-     * @return string[]
-     * @throws \Psr\SimpleCache\InvalidArgumentException
-     */
-    private function getLocalsPhysic(string $regon): ?array
-    {
-        try {
-            $answer  = [];
-            $tLocals = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_LOCALS_PHYSIC);
-            foreach ($tLocals as $local) {
-                $answer[] = $local->lokfiz_regon14;
-            }
-
-            return $answer;
-        } catch (NotFound $e) {
-            return [];
-        }
-    }
-
-    /**
-     * @param string $regon
-     *
-     * @return Entity|null
-     * @throws \mrcnpdlk\Regon\Exception\InvalidResponse
-     * @throws \Psr\SimpleCache\InvalidArgumentException
-     */
-    public function getReport(string $regon): ?Entity
-    {
-        $oEntity       = null;
-        $oSearchResult = $this->getByRegon($regon);
-        switch ($oSearchResult->getTypeId()) {
-            case 'P':
-                $oEntity         = $this->getReportForLaw($regon);
-                $oEntity->locals = $this->getLocalsLaw($regon);
-                break;
-            case 'F':
-                $oEntity         = $this->getReportForPhysic($regon);
-                $oEntity->locals = $this->getLocalsPhysic($regon);
-                break;
-            case 'LP':
-                $oEntity             = $this->getReportForLawLocal($regon);
-                $oEntity->mainEntity = $this->getReport($oEntity->regon9);
-                if (!$oEntity->nip) {
-                    $oEntity->nip = $oEntity->mainEntity->nip;
-                }
-                break;
-            case 'LF':
-                $oEntity             = $this->getReportForPhysicLocal($regon);
-                $oEntity->mainEntity = $this->getReport($oEntity->regon9);
-                if (!$oEntity->nip) {
-                    $oEntity->nip = $oEntity->mainEntity->nip;
-                }
-                break;
+            /** @var \Mrcnpdlk\Api\Regon\Sdk\EntityModel $oEntity */
+            $oEntity = $this->mapper->jsonMap(Sdk\EntityModel::class, $res[0], $tCeidgRes[0]);
         }
 
         return $oEntity;
@@ -169,102 +220,24 @@ class Api
     /**
      * @param string $regon
      *
-     * @return Entity
-     * @throws \Psr\SimpleCache\InvalidArgumentException
-     */
-    private function getReportForLaw(string $regon): Entity
-    {
-        $searchedItems = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_PUBLIC_LAW);
-        $oData         = $searchedItems[0];
-
-        return new Entity($oData);
-    }
-
-    /**
-     * @param string $regon
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception\NotFoundException
+     * @throws \Mrcnpdlk\Lib\ModelMapException
      *
-     * @return Entity
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @return \Mrcnpdlk\Api\Regon\Sdk\EntityModel
      */
-    private function getReportForLawLocal(string $regon): Entity
+    private function getReportForPhysicsLocal(string $regon): Sdk\EntityModel
     {
-        $searchedItems = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_LOCAL_LAW);
-        $oData         = $searchedItems[0];
-        $oEntity       = new Entity($oData);
-
-        return $oEntity;
-    }
-
-    /**
-     * @param string $regon
-     *
-     * @return Entity
-     * @throws InvalidResponse
-     * @throws \Psr\SimpleCache\InvalidArgumentException
-     */
-    private function getReportForPhysic(string $regon): Entity
-    {
-        $searchedItems = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_PERSON);
-        $searchedItem  = $searchedItems[0];
-        if ($searchedItem->fiz_dzialalnosciCeidg === '1') {
-            $tReports = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_CEIDG);
-            $oData    = $tReports[0];
-        } elseif ($searchedItem->fiz_dzialalnosciRolniczych === '1') {
-            $tReports = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_AGRO);
-            $oData    = $tReports[0];
-        } elseif ($searchedItem->fiz_dzialalnosciPozostalych === '1') {
-            $tReports = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_OTHER);
-            $oData    = $tReports[0];
-        } elseif ($searchedItem->fiz_dzialalnosciZKrupgn === '1') {
-            $tReports = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_ACTIVITY_PHYSIC_KRUPGN);
-            $oData    = $tReports[0];
-        } else {
-            throw new InvalidResponse(sprintf(''));
+        $res = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11JednLokalnaOsFizycznej());
+        if (0 === count($res)) {
+            throw new NotFoundException(sprintf('Raport [regon=%s] nie został odnaleziony', $regon));
         }
 
-
-        $oEntity                     = new Entity($oData);
-        $oEntity->basicLegalFormId   = $searchedItem->fiz_podstawowaFormaPrawna_Symbol;
-        $oEntity->basicLegalFormName = $searchedItem->fiz_podstawowaFormaPrawna_Nazwa;
-        $oEntity->nip                = $searchedItem->fiz_nip;
-        $oEntity->regon              = $searchedItem->fiz_regon9;
-        $oEntity->owner              = new Owner($searchedItem->fiz_imie1, $searchedItem->fiz_nazwisko, $searchedItem->fiz_imie2);
-
-        return $oEntity;
-
-    }
-
-    /**
-     * @param string $regon
-     *
-     * @return Entity
-     * @throws \Psr\SimpleCache\InvalidArgumentException
-     */
-    private function getReportForPhysicLocal(string $regon): Entity
-    {
-        $searchedItems = $this->oNativeApi->DanePobierzPelnyRaport($regon, Report::REPORT_LOCAL_PHYSIC);
-        $oData         = $searchedItems[0];
-        $oEntity       = new Entity($oData);
+        /** @var \Mrcnpdlk\Api\Regon\Sdk\EntityModel $oEntity */
+        $oEntity = $this->mapper->jsonMap(Sdk\EntityModel::class, $res[0]);
 
         return $oEntity;
     }
-
-    /**
-     * Getting current date of GUS database
-     *
-     * @return null|string Date in format YYYY-MM-DD
-     * @throws \Exception
-     */
-    public function getServiceStatus(): ?string
-    {
-        $res = $this->oNativeApi->GetValue('StanDanych');
-
-        if ($res) {
-            return (new \DateTime($res))->format('Y-m-d');
-        }
-
-        return null;
-    }
-
-
 }

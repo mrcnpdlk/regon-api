@@ -8,17 +8,13 @@
  *
  * For the full copyright and license information, please view source file
  * that is bundled with this package in the file LICENSE
- *
  * @author  Marcin Pudełek <marcin@pudelek.org.pl>
  */
 
+namespace Mrcnpdlk\Api\Regon\Exception;
 
-namespace mrcnpdlk\Regon\Exception;
-
-
-use mrcnpdlk\Regon\Exception;
+use Mrcnpdlk\Api\Regon\Exception;
 
 class InvalidArgument extends Exception
 {
-
 }
