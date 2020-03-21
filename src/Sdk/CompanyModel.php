@@ -61,7 +61,7 @@ class CompanyModel
      */
     public $postalCode;
     /**
-     * @var string
+     * @var string|null
      */
     public $streetName;
     /**
@@ -258,11 +258,11 @@ class CompanyModel
     }
 
     /**
-     * @param string $streetName
+     * @param string|null $streetName
      *
      * @return CompanyModel
      */
-    public function setUlica(string $streetName): CompanyModel
+    public function setUlica(?string $streetName): CompanyModel
     {
         $this->streetName = $streetName;
 
