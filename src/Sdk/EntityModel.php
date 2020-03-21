@@ -2429,6 +2429,666 @@ class EntityModel
     }
 
     /**
+     * @param string|null $addressHeadCommuneName
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzGminaNazwa(?string $addressHeadCommuneName): EntityModel
+    {
+        $this->addressHeadCommuneName = $addressHeadCommuneName;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadCommuneId
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzGminaSymbol(?string $addressHeadCommuneId): EntityModel
+    {
+        $this->addressHeadCommuneId = $addressHeadCommuneId;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadPostalCode
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzKodPocztowy(?string $addressHeadPostalCode): EntityModel
+    {
+        $this->addressHeadPostalCode = $addressHeadPostalCode;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadCountryName
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzKrajNazwa(?string $addressHeadCountryName): EntityModel
+    {
+        $this->addressHeadCountryName = $addressHeadCountryName;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadCountryId
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzKrajSymbol(?string $addressHeadCountryId): EntityModel
+    {
+        $this->addressHeadCountryId = $addressHeadCountryId;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadCityName
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzMiejscowoscNazwa(?string $addressHeadCityName): EntityModel
+    {
+        $this->addressHeadCityName = $addressHeadCityName;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadPostalCityName
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzMiejscowoscPocztyNazwa(?string $addressHeadPostalCityName): EntityModel
+    {
+        $this->addressHeadPostalCityName = $addressHeadPostalCityName;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadPostalCityId
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzMiejscowoscPocztySymbol(?string $addressHeadPostalCityId): EntityModel
+    {
+        $this->addressHeadPostalCityId = $addressHeadPostalCityId;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadCityId
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzMiejscowoscSymbol(?string $addressHeadCityId): EntityModel
+    {
+        $this->addressHeadCityId = $addressHeadCityId;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressAlternative
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzNietypoweMiejsceLokalizacji(?string $addressAlternative): EntityModel
+    {
+        $this->addressAlternative = $addressAlternative;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadFlatNr
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzNumerLokalu(?string $addressHeadFlatNr): EntityModel
+    {
+        $this->addressHeadFlatNr = $addressHeadFlatNr;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadHomeNr
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzNumerNieruchomosci(?string $addressHeadHomeNr): EntityModel
+    {
+        $this->addressHeadHomeNr = $addressHeadHomeNr;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadPoviatName
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzPowiatNazwa(?string $addressHeadPoviatName): EntityModel
+    {
+        $this->addressHeadPoviatName = $addressHeadPoviatName;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadPoviatId
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzPowiatSymbol(?string $addressHeadPoviatId): EntityModel
+    {
+        $this->addressHeadPoviatId = $addressHeadPoviatId;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadStreetName
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzUlicaNazwa(?string $addressHeadStreetName): EntityModel
+    {
+        $this->addressHeadStreetName = $addressHeadStreetName;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadStreetId
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzUlicaSymbol(?string $addressHeadStreetId): EntityModel
+    {
+        $this->addressHeadStreetId = $addressHeadStreetId;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadVoivodshipName
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzWojewodztwoNazwa(?string $addressHeadVoivodshipName): EntityModel
+    {
+        $this->addressHeadVoivodshipName = $addressHeadVoivodshipName;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $addressHeadVoivodshipId
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdSiedzWojewodztwoSymbol(?string $addressHeadVoivodshipId): EntityModel
+    {
+        $this->addressHeadVoivodshipId = $addressHeadVoivodshipId;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $contactEmail
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdresEmail(?string $contactEmail): EntityModel
+    {
+        $this->contactEmail = $contactEmail;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $website
+     *
+     * @return EntityModel
+     */
+    public function setLokprawAdresStronyinternetowej(?string $website): EntityModel
+    {
+        $this->website = $website;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $dateBankruptcy
+     *
+     * @return EntityModel
+     */
+    public function setLokprawDataOrzeczeniaOUpadlosci(?string $dateBankruptcy): EntityModel
+    {
+        $this->dateBankruptcy = $dateBankruptcy;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $createDate
+     *
+     * @return EntityModel
+     */
+    public function setLokprawDataPowstania(?string $createDate): EntityModel
+    {
+        $this->dateCreate = $createDate;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $dateStart
+     *
+     * @return EntityModel
+     */
+    public function setLokprawDataRozpoczeciaDzialalnosci(?string $dateStart): EntityModel
+    {
+        $this->dateStart = $dateStart;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $dateRegonDelete
+     *
+     * @return EntityModel
+     */
+    public function setLokprawDataSkresleniaZRegon(?string $dateRegonDelete): EntityModel
+    {
+        $this->dateRegonDelete = $dateRegonDelete;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $dateRegonCreate
+     *
+     * @return EntityModel
+     */
+    public function setLokprawDataWpisuDoRegon(?string $dateRegonCreate): EntityModel
+    {
+        $this->dateRegonCreate = $dateRegonCreate;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $dateRegisterCreate
+     *
+     * @return EntityModel
+     */
+    public function setLokprawDataWpisuDoRejestruEwidencji(?string $dateRegisterCreate): EntityModel
+    {
+        $this->dateRegisterCreate = $dateRegisterCreate;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $dateResume
+     *
+     * @return EntityModel
+     */
+    public function setLokprawDataWznowieniaDzialalnosci(?string $dateResume): EntityModel
+    {
+        $this->dateResume = $dateResume;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $dateChange
+     *
+     * @return EntityModel
+     */
+    public function setLokprawDataZaistnieniaZmiany(?string $dateChange): EntityModel
+    {
+        $this->dateChange = $dateChange;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $dateEnd
+     *
+     * @return EntityModel
+     */
+    public function setLokprawDataZakonczeniaDzialalnosci(?string $dateEnd): EntityModel
+    {
+        $this->dateEnd = $dateEnd;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $dateBankruptcyProcess
+     *
+     * @return EntityModel
+     */
+    public function setLokprawDataZakonczeniaPostepowaniaUpadlosciowego(?string $dateBankruptcyProcess): EntityModel
+    {
+        $this->dateBankruptcyProcessEnd = $dateBankruptcyProcess;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $dateSuspend
+     *
+     * @return EntityModel
+     */
+    public function setLokprawDataZawieszeniaDzialalnosci(?string $dateSuspend): EntityModel
+    {
+        $this->dateSuspend = $dateSuspend;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $financialFormName
+     *
+     * @return EntityModel
+     */
+    public function setLokprawFormaFinansowaniaNazwa(?string $financialFormName): EntityModel
+    {
+        $this->financialFormName = $financialFormName;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $financialFormId
+     *
+     * @return EntityModel
+     */
+    public function setLokprawFormaFinansowaniaSymbol(?string $financialFormId): EntityModel
+    {
+        $this->financialFormId = $financialFormId;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $propertyFormName
+     *
+     * @return EntityModel
+     */
+    public function setLokprawFormaWlasnosciNazwa(?string $propertyFormName): EntityModel
+    {
+        $this->propertyFormName = $propertyFormName;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $propertyFormId
+     *
+     * @return EntityModel
+     */
+    public function setLokprawFormaWlasnosciSymbol(?string $propertyFormId): EntityModel
+    {
+        $this->propertyFormId = $propertyFormId;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $localCount
+     *
+     * @return EntityModel
+     */
+    public function setLokprawLiczbaJednLokalnych(?string $localCount): EntityModel
+    {
+        $this->localCount = (int)$localCount;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $name
+     *
+     * @return EntityModel
+     */
+    public function setLokprawNazwa(?string $name): EntityModel
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $nameShort
+     *
+     * @return EntityModel
+     */
+    public function setLokprawNazwaSkrocona(?string $nameShort): EntityModel
+    {
+        $this->nameShort = $nameShort;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $nip
+     *
+     * @return EntityModel
+     */
+    public function setLokprawNip(?string $nip): EntityModel
+    {
+        $this->nip = $nip;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $contactFax
+     *
+     * @return EntityModel
+     */
+    public function setLokprawNumerFaksu(?string $contactFax): EntityModel
+    {
+        $this->contactFax = $contactFax;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $contactPhone
+     *
+     * @return EntityModel
+     */
+    public function setLokprawNumerTelefonu(?string $contactPhone): EntityModel
+    {
+        $this->contactPhone = $contactPhone;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $registerNr
+     *
+     * @return EntityModel
+     */
+    public function setLokprawNumerWRejestrzeEwidencji(?string $registerNr): EntityModel
+    {
+        $this->registerNr = $registerNr;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $contactPhoneInternal
+     *
+     * @return EntityModel
+     */
+    public function setLokprawNumerWewnetrznyTelefonu(?string $contactPhoneInternal): EntityModel
+    {
+        $this->contactPhoneInternal = $contactPhoneInternal;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $registerName
+     *
+     * @return EntityModel
+     */
+    public function setLokprawOrganRejestrowyNazwa(?string $registerName): EntityModel
+    {
+        $this->registerName = $registerName;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $registerId
+     *
+     * @return EntityModel
+     */
+    public function setLokprawOrganRejestrowySymbol(?string $registerId): EntityModel
+    {
+        $this->registerId = $registerId;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $foundingBodyName
+     *
+     * @return EntityModel
+     */
+    public function setLokprawOrganZalozycielskiNazwa(?string $foundingBodyName): EntityModel
+    {
+        $this->foundingBodyName = $foundingBodyName;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $foundingBodyId
+     *
+     * @return EntityModel
+     */
+    public function setLokprawOrganZalozycielskiSymbol(?string $foundingBodyId): EntityModel
+    {
+        $this->foundingBodyId = $foundingBodyId;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $basicLegalFormName
+     *
+     * @return EntityModel
+     */
+    public function setLokprawPodstawowaFormaPrawnaNazwa(?string $basicLegalFormName): EntityModel
+    {
+        $this->basicLegalFormName = $basicLegalFormName;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $basicLegalFormId
+     *
+     * @return EntityModel
+     */
+    public function setLokprawPodstawowaFormaPrawnaSymbol(?string $basicLegalFormId): EntityModel
+    {
+        $this->basicLegalFormId = $basicLegalFormId;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $regon
+     *
+     * @return EntityModel
+     */
+    public function setLokprawRegon14(?string $regon): EntityModel
+    {
+        $this->regon = $regon;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $registerTypeName
+     *
+     * @return EntityModel
+     */
+    public function setLokprawRodzajRejestruEwidencjiNazwa(?string $registerTypeName): EntityModel
+    {
+        $this->registerTypeName = $registerTypeName;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $registerTypeId
+     *
+     * @return EntityModel
+     */
+    public function setLokprawRodzajRejestruEwidencjiSymbol(?string $registerTypeId): EntityModel
+    {
+        $this->registerTypeId = $registerTypeId;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $statusNip
+     *
+     * @return EntityModel
+     */
+    public function setLokprawStatusNip(?string $statusNip): EntityModel
+    {
+        $this->nipStatus = $statusNip;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $detailLegalFormName
+     *
+     * @return EntityModel
+     */
+    public function setLokprawSzczegolnaFormaPrawnaNazwa(?string $detailLegalFormName): EntityModel
+    {
+        $this->detailLegalFormName = $detailLegalFormName;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $detailLegalFormId
+     *
+     * @return EntityModel
+     */
+    public function setLokprawSzczegolnaFormaPrawnaSymbol(?string $detailLegalFormId): EntityModel
+    {
+        $this->detailLegalFormId = $detailLegalFormId;
+
+        return $this;
+    }
+
+    /**
      * @return $this
      */
     public function validate(): self
