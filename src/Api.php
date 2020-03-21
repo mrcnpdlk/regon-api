@@ -30,7 +30,6 @@ use Mrcnpdlk\Api\Regon\Enum\ValueEnum;
 use Mrcnpdlk\Api\Regon\Exception\NotFoundException;
 use Mrcnpdlk\Api\Regon\Sdk\CompanyModel;
 use Mrcnpdlk\Lib\Mapper;
-use mrcnpdlk\Regon\Sdk\EntityModel;
 
 class Api
 {
@@ -215,6 +214,16 @@ class Api
         return $oEntity;
     }
 
+    /**
+     * @param string $regon
+     *
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception\NotFoundException
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     * @return \Mrcnpdlk\Api\Regon\Sdk\EntityModel
+     */
     private function getReportForPhysicsLocal(string $regon): Sdk\EntityModel
     {
         $res = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11JednLokalnaOsFizycznej());
