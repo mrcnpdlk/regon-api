@@ -21,6 +21,9 @@
 namespace Mrcnpdlk\Api\Regon\Sdk;
 
 
+use Mrcnpdlk\Api\Regon\Enum\SilosEnum;
+use Mrcnpdlk\Api\Regon\Enum\TypeEnum;
+
 class CompanyModel
 {
     /**
@@ -76,7 +79,7 @@ class CompanyModel
      */
     public $type;
     /**
-     * @var int
+     * @var \Mrcnpdlk\Api\Regon\Enum\SilosEnum
      */
     public $silosID;
     /**
@@ -84,7 +87,7 @@ class CompanyModel
      */
     public $endingDate;
     /**
-     * @var string
+     * @var string|null
      */
     public $postalCityName;
 
@@ -137,11 +140,11 @@ class CompanyModel
     }
 
     /**
-     * @param string $postalCityName
+     * @param string|null $postalCityName
      *
      * @return CompanyModel
      */
-    public function setMiejscowoscPoczty(string $postalCityName): CompanyModel
+    public function setMiejscowoscPoczty(?string $postalCityName): CompanyModel
     {
         $this->postalCityName = $postalCityName;
 
@@ -233,13 +236,25 @@ class CompanyModel
     }
 
     /**
+     * @param string $silosID
+     *
+     * @return CompanyModel
+     */
+    public function setSilosID(string $silosID): CompanyModel
+    {
+        $this->silosID = new SilosEnum((int)$silosID);
+
+        return $this;
+    }
+
+    /**
      * @param mixed $type
      *
      * @return CompanyModel
      */
     public function setTyp($type): CompanyModel
     {
-        $this->type = new \Mrcnpdlk\Api\Regon\Enum\TypeEnum($type);
+        $this->type = new TypeEnum($type);
 
         return $this;
     }

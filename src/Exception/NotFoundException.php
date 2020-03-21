@@ -16,7 +16,7 @@
 namespace Mrcnpdlk\Api\Regon\Exception;
 
 
-class NotFound extends InvalidResponse
+class NotFoundException extends InvalidResponse
 {
 
 }

@@ -27,7 +27,7 @@ use Mrcnpdlk\Api\Regon\Enum\ReportCompactEnum;
 use Mrcnpdlk\Api\Regon\Enum\ReportFullEnum;
 use Mrcnpdlk\Api\Regon\Enum\ValueEnum;
 use Mrcnpdlk\Api\Regon\Exception\AuthException;
-use Mrcnpdlk\Api\Regon\Exception\NotFound;
+use Mrcnpdlk\Api\Regon\Exception\NotFoundException;
 use Mrcnpdlk\Api\Regon\Sdk\DaneSzukajPodmiotyResponse;
 use Mrcnpdlk\Api\Regon\Sdk\GetValueResponse;
 use Mrcnpdlk\Api\Regon\Sdk\ZalogujResponse;
@@ -245,7 +245,7 @@ class NativeApi
         $answer = [];
         $code   = (int)$this->GetValue(ValueEnum::KomunikatKod());
         if ($code > 0) {
-            throw new NotFound($this->GetValue(ValueEnum::KomunikatTresc()), $code);
+            throw new NotFoundException($this->GetValue(ValueEnum::KomunikatTresc()), $code);
         }
 
         $res = new \SimpleXMLElement($response);

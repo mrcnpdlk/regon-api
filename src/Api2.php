@@ -17,7 +17,7 @@ namespace Mrcnpdlk\Api\Regon;
 
 use Mrcnpdlk\Api\Regon\Enum\Report;
 use Mrcnpdlk\Api\Regon\Exception\InvalidResponse;
-use Mrcnpdlk\Api\Regon\Exception\NotFound;
+use Mrcnpdlk\Api\Regon\Exception\NotFoundException;
 use Mrcnpdlk\Api\Regon\Model\Entity;
 use Mrcnpdlk\Api\Regon\Model\Entity\Owner;
 use Mrcnpdlk\Api\Regon\Model\SearchResult;
@@ -101,7 +101,7 @@ class Api2
             }
 
             return $answer;
-        } catch (NotFound $e) {
+        } catch (NotFoundException $e) {
             return [];
         }
     }
@@ -122,7 +122,7 @@ class Api2
             }
 
             return $answer;
-        } catch (NotFound $e) {
+        } catch (NotFoundException $e) {
             return [];
         }
     }
