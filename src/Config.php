@@ -35,6 +35,69 @@ class Config extends ConfigurationOptionsAbstract
      * @var string
      */
     protected $location = 'https://wyszukiwarkaregon.stat.gov.pl/wsBIR/UslugaBIRzewnPubl.svc';
+    /**
+     * @var string
+     */
+    protected $cacheDir;
+    /**
+     * Cache time [sec]
+     *
+     * @var int
+     */
+    protected $cacheTtl = 60;
+
+    /**
+     * Config constructor.
+     *
+     * @param array<string,mixed> $config
+     *
+     * @throws \Mrcnpdlk\Lib\ConfigurationException
+     */
+    public function __construct(array $config = [])
+    {
+        $this->cacheDir = sys_get_temp_dir();
+        parent::__construct($config);
+    }
+
+    /**
+     * @return string
+     */
+    public function getCacheDir(): string
+    {
+        return $this->cacheDir;
+    }
+
+    /**
+     * @param string $cacheDir
+     *
+     * @return Config
+     */
+    public function setCacheDir(string $cacheDir): Config
+    {
+        $this->cacheDir = $cacheDir;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCacheTtl(): int
+    {
+        return $this->cacheTtl;
+    }
+
+    /**
+     * @param int $cacheTtl
+     *
+     * @return Config
+     */
+    public function setCacheTtl(int $cacheTtl): Config
+    {
+        $this->cacheTtl = $cacheTtl;
+
+        return $this;
+    }
 
     /**
      * @return string

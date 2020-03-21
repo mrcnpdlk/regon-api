@@ -22,6 +22,8 @@ declare(strict_types=1);
 namespace Mrcnpdlk\Api\Regon;
 
 use DateTime;
+use Gregwar\Cache\Cache;
+use Laminas\Json\Json;
 use Mrcnpdlk\Api\Regon\Enum\ReportFullEnum;
 use Mrcnpdlk\Api\Regon\Enum\TypeEnum;
 use Mrcnpdlk\Api\Regon\Enum\ValueEnum;
@@ -44,6 +46,10 @@ class Api
      * @var \Mrcnpdlk\Api\Regon\NativeApi
      */
     private $nativeApi;
+    /**
+     * @var \Gregwar\Cache\Cache
+     */
+    private $cache;
 
     /**
      * Api constructor.
@@ -55,6 +61,12 @@ class Api
         $this->mapper    = new Mapper(null);
         $this->config    = $oConfig;
         $this->nativeApi = new NativeApi($oConfig);
+
+        $oCache = new Cache();
+        $oCache
+            ->setCacheDirectory($this->config->getCacheDir())
+            ->setPrefixSize(0);
+        $this->cache = $oCache;
     }
 
     /**
@@ -84,27 +96,35 @@ class Api
      */
     public function getPKD(string $regon): array
     {
-        $tRes = $this->searchByRegon($regon);
+        $tRes = $this->searchByRegon($regon, true);
         if (0 === count($tRes)) {
             throw new NotFoundException(sprintf('Podmiot [regon=%s] nie został odnaleziony', $regon));
         }
         $company = $tRes[0];
         switch ($company->type->getValue()) {
             case TypeEnum::P:
-                $tList = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11OsPrawnaPkd());
+                $report = ReportFullEnum::BIR11OsPrawnaPkd();
                 break;
             case TypeEnum::F:
-                $tList = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11OsFizycznaPkd());
+                $report = ReportFullEnum::BIR11OsFizycznaPkd();
                 break;
             case TypeEnum::LF:
-                $tList = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11JednLokalnaOsFizycznejPkd());
+                $report = ReportFullEnum::BIR11JednLokalnaOsFizycznejPkd();
                 break;
             case TypeEnum::LP:
-                $tList = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11JednLokalnaOsPrawnejPkd());
+                $report = ReportFullEnum::BIR11JednLokalnaOsPrawnejPkd();
                 break;
             default:
                 throw new Exception(sprintf('Niewspierany typ podmiotu [%s]', $company->type->getValue()));
         }
+        $tList = Json::decode($this->cache->getOrCreate(
+            sprintf('getPKD_%s.cache', $regon),
+            ['max-age' => $this->config->getCacheTtl()],
+            function () use ($regon,$report): string {
+                return Json::encode($this->nativeApi->DanePobierzPelnyRaport($regon, $report));
+            }
+        ));
+
         /** @var PkdModel[] $tRes */
         $tRes = $this->mapper->jsonMapArray(PkdModel::class, $tList);
 
@@ -124,7 +144,7 @@ class Api
      */
     public function getReport(string $regon): Sdk\EntityModel
     {
-        $tRes = $this->searchByRegon($regon);
+        $tRes = $this->searchByRegon($regon, true);
         if (0 === count($tRes)) {
             throw new NotFoundException(sprintf('Podmiot [regon=%s] nie został odnaleziony', $regon));
         }
@@ -151,6 +171,7 @@ class Api
 
     /**
      * @param string $krs
+     * @param bool   $useCache
      *
      * @throws \Mrcnpdlk\Api\Regon\Exception
      * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
@@ -159,9 +180,20 @@ class Api
      *
      * @return \Mrcnpdlk\Api\Regon\Sdk\CompanyModel[]
      */
-    public function searchByKrs(string $krs): array
+    public function searchByKrs(string $krs, bool $useCache = true): array
     {
-        $res = $this->nativeApi->DaneSzukajPodmioty(null, null, $krs);
+        if (true === $useCache) {
+            $res = Json::decode($this->cache->getOrCreate(
+                sprintf('searchByKrs_%s.cache', $krs),
+                ['max-age' => $this->config->getCacheTtl()],
+                function () use ($krs): string {
+                    return Json::encode($this->nativeApi->DaneSzukajPodmioty(null, null, $krs));
+                }
+            ));
+        } else {
+            $res = $this->nativeApi->DaneSzukajPodmioty(null, null, $krs);
+        }
+
         /** @var CompanyModel[] $tList */
         $tList = $this->mapper->jsonMapArray(CompanyModel::class, $res);
 
@@ -170,6 +202,7 @@ class Api
 
     /**
      * @param string $nip
+     * @param bool   $useCache
      *
      * @throws \Mrcnpdlk\Api\Regon\Exception
      * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
@@ -178,9 +211,20 @@ class Api
      *
      * @return \Mrcnpdlk\Api\Regon\Sdk\CompanyModel[]
      */
-    public function searchByNip(string $nip): array
+    public function searchByNip(string $nip, bool $useCache = true): array
     {
-        $res = $this->nativeApi->DaneSzukajPodmioty(null, $nip);
+        if (true === $useCache) {
+            $res = Json::decode($this->cache->getOrCreate(
+                sprintf('searchByNip_%s.cache', $nip),
+                ['max-age' => $this->config->getCacheTtl()],
+                function () use ($nip): string {
+                    return Json::encode($this->nativeApi->DaneSzukajPodmioty(null, $nip));
+                }
+            ));
+        } else {
+            $res = $this->nativeApi->DaneSzukajPodmioty(null, $nip);
+        }
+
         /** @var CompanyModel[] $tList */
         $tList = $this->mapper->jsonMapArray(CompanyModel::class, $res);
 
@@ -189,6 +233,7 @@ class Api
 
     /**
      * @param string $regon
+     * @param bool   $useCache
      *
      * @throws \Mrcnpdlk\Api\Regon\Exception
      * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
@@ -197,9 +242,20 @@ class Api
      *
      * @return \Mrcnpdlk\Api\Regon\Sdk\CompanyModel[]
      */
-    public function searchByRegon(string $regon): array
+    public function searchByRegon(string $regon, bool $useCache = true): array
     {
-        $res = $this->nativeApi->DaneSzukajPodmioty($regon);
+        if (true === $useCache) {
+            $res = Json::decode($this->cache->getOrCreate(
+                sprintf('searchByRegon_%s.cache', $regon),
+                ['max-age' => $this->config->getCacheTtl()],
+                function () use ($regon): string {
+                    return Json::encode($this->nativeApi->DaneSzukajPodmioty($regon));
+                }
+            ));
+        } else {
+            $res = $this->nativeApi->DaneSzukajPodmioty($regon);
+        }
+
         /** @var CompanyModel[] $tList */
         $tList = $this->mapper->jsonMapArray(CompanyModel::class, $res);
 

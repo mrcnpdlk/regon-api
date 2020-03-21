@@ -26,6 +26,8 @@ Available options:
 | password       | Password to REGON api | YES         |
 | wsdl           | path to WSDL          | NO          |
 | location       | path do SVC location  | NO          |
+| cacheDir       | path do cache directory  | NO (system dir cache)         |
+| cacheTtl       | cache ttl [sec]  | NO (60 sec)          |
 
 ### Creating instance
 
