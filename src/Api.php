@@ -27,6 +27,7 @@ use Mrcnpdlk\Api\Regon\Enum\TypeEnum;
 use Mrcnpdlk\Api\Regon\Enum\ValueEnum;
 use Mrcnpdlk\Api\Regon\Exception\NotFoundException;
 use Mrcnpdlk\Api\Regon\Sdk\CompanyModel;
+use Mrcnpdlk\Api\Regon\Sdk\PkdModel;
 use Mrcnpdlk\Lib\Mapper;
 
 class Api
@@ -79,6 +80,46 @@ class Api
      * @throws \Mrcnpdlk\Api\Regon\Exception\NotFoundException
      * @throws \Mrcnpdlk\Lib\ModelMapException
      *
+     * @return \Mrcnpdlk\Api\Regon\Sdk\PkdModel[]
+     */
+    public function getPKD(string $regon): array
+    {
+        $tRes = $this->searchByRegon($regon);
+        if (0 === count($tRes)) {
+            throw new NotFoundException(sprintf('Podmiot [regon=%s] nie został odnaleziony', $regon));
+        }
+        $company = $tRes[0];
+        switch ($company->type->getValue()) {
+            case TypeEnum::P:
+                $tList = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11OsPrawnaPkd());
+                break;
+            case TypeEnum::F:
+                $tList = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11OsFizycznaPkd());
+                break;
+            case TypeEnum::LF:
+                $tList = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11JednLokalnaOsFizycznejPkd());
+                break;
+            case TypeEnum::LP:
+                $tList = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11JednLokalnaOsPrawnejPkd());
+                break;
+            default:
+                throw new Exception(sprintf('Niewspierany typ podmiotu [%s]', $company->type->getValue()));
+        }
+        /** @var PkdModel[] $tRes */
+        $tRes = $this->mapper->jsonMapArray(PkdModel::class, $tList);
+
+        return $tRes;
+    }
+
+    /**
+     * @param string $regon
+     *
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception\NotFoundException
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     *
      * @return \Mrcnpdlk\Api\Regon\Sdk\EntityModel
      */
     public function getReport(string $regon): Sdk\EntityModel
@@ -118,7 +159,7 @@ class Api
      *
      * @return \Mrcnpdlk\Api\Regon\Sdk\CompanyModel[]
      */
-    public function searchByKrs(string $krs)
+    public function searchByKrs(string $krs): array
     {
         $res = $this->nativeApi->DaneSzukajPodmioty(null, null, $krs);
         /** @var CompanyModel[] $tList */
@@ -199,6 +240,29 @@ class Api
      *
      * @return \Mrcnpdlk\Api\Regon\Sdk\EntityModel
      */
+    private function getReportForLawLocal(string $regon): Sdk\EntityModel
+    {
+        $res = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11JednLokalnaOsPrawnej());
+        if (0 === count($res)) {
+            throw new NotFoundException(sprintf('Raport [regon=%s] nie został odnaleziony', $regon));
+        }
+        /** @var \Mrcnpdlk\Api\Regon\Sdk\EntityModel $oEntity */
+        $oEntity = $this->mapper->jsonMap(Sdk\EntityModel::class, $res[0]);
+
+        return $oEntity;
+    }
+
+    /**
+     * @param string $regon
+     *
+     * @throws \Mrcnpdlk\Api\Regon\Exception
+     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
+     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
+     * @throws \Mrcnpdlk\Api\Regon\Exception\NotFoundException
+     * @throws \Mrcnpdlk\Lib\ModelMapException
+     *
+     * @return \Mrcnpdlk\Api\Regon\Sdk\EntityModel
+     */
     private function getReportForPhysics(string $regon): Sdk\EntityModel
     {
         $res = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11OsFizycznaDaneOgolne());
@@ -238,29 +302,6 @@ class Api
             throw new NotFoundException(sprintf('Raport [regon=%s] nie został odnaleziony', $regon));
         }
 
-        /** @var \Mrcnpdlk\Api\Regon\Sdk\EntityModel $oEntity */
-        $oEntity = $this->mapper->jsonMap(Sdk\EntityModel::class, $res[0]);
-
-        return $oEntity;
-    }
-
-    /**
-     * @param string $regon
-     *
-     * @throws \Mrcnpdlk\Api\Regon\Exception
-     * @throws \Mrcnpdlk\Api\Regon\Exception\AuthException
-     * @throws \Mrcnpdlk\Api\Regon\Exception\InvalidResponse
-     * @throws \Mrcnpdlk\Api\Regon\Exception\NotFoundException
-     * @throws \Mrcnpdlk\Lib\ModelMapException
-     *
-     * @return \Mrcnpdlk\Api\Regon\Sdk\EntityModel
-     */
-    private function getReportForLawLocal(string $regon): Sdk\EntityModel
-    {
-        $res = $this->nativeApi->DanePobierzPelnyRaport($regon, ReportFullEnum::BIR11JednLokalnaOsPrawnej());
-        if (0 === count($res)) {
-            throw new NotFoundException(sprintf('Raport [regon=%s] nie został odnaleziony', $regon));
-        }
         /** @var \Mrcnpdlk\Api\Regon\Sdk\EntityModel $oEntity */
         $oEntity = $this->mapper->jsonMap(Sdk\EntityModel::class, $res[0]);
 
