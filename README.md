@@ -18,6 +18,17 @@ API uses [BIR 1.1](https://api.stat.gov.pl/Home/RegonApi)
 
 ## Basic usage
 
+### Configuration
+Available options:
+
+| Parameter name | Description           | Is required |
+| -------------- | --------------------- | ----------- |
+| password       | Password to REGON api | YES         |
+| wsdl           | path to WSDL          | NO          |
+| location       | path do SVC location  | NO          |
+
+### Creating instance
+
 ```php
 $oConfig = new Mrcnpdlk\Api\Regon\Config([
     'password' => 'my_password',
@@ -29,6 +40,21 @@ $oApi = new \Mrcnpdlk\Api\Regon\Api($oConfig);
 
 ## NativeApi
 
+`NativeApi` class implements native GUS methods such like:
 
+- Zaloguj()
+- Wyloguj()
+- GetValue(ValueEnum $param)
+- DaneSzukajPodmioty( string $regon = null, string $nip = null, string $krs = null, array $tRegon = [], array $tNip = [], array $tKrs = [])
+- DanePobierzRaportZbiorczy(string $date, ReportCompactEnum $report)
+- DanePobierzPelnyRaport(string $regon, ReportFullEnum $report)
 
 ## Api
+
+`Api` class implements usable methods based on `NativeApi` class.
+
+- searchByNip()
+- searchByKrs()
+- searchByRegon()
+- getPKD()
+- getReport()
