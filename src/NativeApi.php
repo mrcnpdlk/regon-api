@@ -195,7 +195,9 @@ class NativeApi
      */
     public function Wyloguj(): void
     {
-        $this->soap->__soapCall('Wyloguj', [['pIdentyfikatorSesji' => $this->sid]]);
+        if (null !== $this->soap) {
+            $this->soap->__soapCall('Wyloguj', [['pIdentyfikatorSesji' => $this->sid]]);
+        }
     }
 
     /**

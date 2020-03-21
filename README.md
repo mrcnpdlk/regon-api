@@ -5,7 +5,7 @@
 [![Monthly Downloads](https://img.shields.io/packagist/dm/mrcnpdlk/regon-api.svg)](https://packagist.org/packages/mrcnpdlk/regon-api)
 [![License](https://img.shields.io/packagist/l/mrcnpdlk/regon-api.svg)](https://packagist.org/packages/mrcnpdlk/regon-api)    
 
-# REGON API - Polish companies database
+# REGON API - Polish companies database v2
 
 ## Installation
 
@@ -16,4 +16,17 @@ composer require mrcnpdlk/regon-api
 
 ## Basic usage
 
+```php
+$oConfig = new Mrcnpdlk\Api\Regon\Config([
+    'password' => 'my_password',
+]);
 
+$oNativeApi = new \Mrcnpdlk\Api\Regon\NativeApi($oConfig);
+$oApi = new \Mrcnpdlk\Api\Regon\Api($oConfig);
+```
+
+## NativeApi
+
+
+
+## Api
