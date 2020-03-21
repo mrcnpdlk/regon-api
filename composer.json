@@ -30,7 +30,9 @@
     "mrcnpdlk/lib-configuration": "^0",
     "mrcnpdlk/lib-mapper": "^0",
     "mrcnpdlk/lib-exception": "^0",
-    "myclabs/php-enum": "^1"
+    "myclabs/php-enum": "^1",
+    "gregwar/cache": "^1",
+    "laminas/laminas-json": "^3"
   },
   "require-dev": {
     "monolog/monolog": "^1",
