@@ -74,10 +74,12 @@ class RegonSoapClient extends SoapClient
         $hdr->appendChild(new DOMElement('To', $location, 'http://www.w3.org/2005/08/addressing'));
         $dom->documentElement->insertBefore($hdr, $dom->documentElement->firstChild);
         $request  = $dom->saveXML();
-        $response = parent::__doRequest($request, $location, $action, $version, $oneWay);
-        $response = stristr(stristr($response, '<s:'), '</s:Envelope>', true) . '</s:Envelope>';
+        if ($response = parent::__doRequest($request, $location, $action, $version, $oneWay)) {
+            $response = stristr(stristr($response, '<s:'), '</s:Envelope>', true) . '</s:Envelope>';
+            return $response;
+        }
 
-        return $response;
+        return '';
     }
 
     /**
